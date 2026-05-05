@@ -125,7 +125,7 @@ public static class Program
                 var nomePasta = Path.GetFileName(directory);
                 
                 StartInfo.FileName = "robocopy";
-                StartInfo.Arguments = $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /R:3 /W:5";
+                StartInfo.Arguments = $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD logs replay cache /R:3 /W:5";
 
                 var process = Process.Start(StartInfo);
                 process?.WaitForExit();
@@ -157,7 +157,7 @@ public static class Program
                 var nomePasta = Path.GetFileName(directory);
                 
                 StartInfo.FileName = "robocopy";
-                StartInfo.Arguments = $"\"{directory}\" \"{destino}\\{nomePasta}\" /E /COPY:DAT /R:3 /W:5";
+                StartInfo.Arguments = $"\"{directory}\" \"{destino}\\{nomePasta}\" /E /COPY:DAT /XD logs replay cache /R:3 /W:5";
 
                 var process = Process.Start(StartInfo);
                 process?.WaitForExit();
@@ -181,7 +181,7 @@ public static class Program
             
             
             StartInfo.FileName = "cmd.exe";
-            StartInfo.Arguments = $@"/C mkdir {documents}DEVELOPER\repositories";
+            StartInfo.Arguments = $@"/C mkdir {documents}\DEVELOPER\repositories";
 
             var process = Process.Start(StartInfo);
             process?.WaitForExit();
