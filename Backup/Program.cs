@@ -5,7 +5,6 @@ namespace Backup;
 
 public static class Program
 {
-    private static readonly ProcessStartInfo StartInfo = new();
     private static bool IsAdmin()
     {
         var identity = WindowsIdentity.GetCurrent();
@@ -16,7 +15,7 @@ public static class Program
     
     public static void Main(string[] args)
     {
-        /* CRIAR UM PROGRAMA QUE COPIE TODAS PASTAS DE BACKUP PARA O HD, ASSIM POSSO EXECUTAR ELE ANTES DE FORMATAR O PC */
+        /* CRIAR UM PROGRAMA QUE COPIE TODAS AS PASTAS DE "BACKUP" PARA O HD, ASSIM POSSO EXECUTAR ELE ANTES DE FORMATAR O PC */
 
         if (!IsAdmin())
         {
@@ -45,10 +44,11 @@ public static class Program
 
     private static void Menu()
     {
-        Console.Clear();
         while (true)
         {
             var opcao = LerInt("\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP\n[ 2 ]RESTAURAR BACKUP\n[ 3 ]CRIAR DIRETÓRIO\n[ 4 ]INSTALAR PACOTES\n[ 5 ]ATUALIZAR PACOTES\nSua opção: ");
+
+            Console.Clear();
             
             if (opcao == 0)
                 break;
@@ -59,8 +59,6 @@ public static class Program
                 {
                     var resultado = FazerBackup();
                     
-                    Console.Clear();
-                    
                     Console.WriteLine(resultado);
                     break;
                 }
@@ -68,8 +66,6 @@ public static class Program
                 case 2:
                 {
                     var resultado = RestaurarBackup();
-                    
-                    Console.Clear();
 
                     Console.WriteLine(resultado);
                     break;
@@ -78,8 +74,7 @@ public static class Program
                 case 3:
                 {
                     var resultado = CriarDiretório();
-
-                    Console.Clear();
+                    
                     
                     Console.WriteLine(resultado);
                     break;
@@ -87,21 +82,39 @@ public static class Program
 
                 case 4:
                 {
-                    var resultado = InstalarPacotes();
+                    var wingetExiste = WingetExiste();
 
-                    Console.Clear();
+                    if (wingetExiste)
+                    {
+                        var resultado = InstalarPacotes();
+                        
 
-                    Console.WriteLine(resultado);
+                        Console.WriteLine(resultado);
+                    }
+
+                    else
+                    {
+                        InstalarWinget();
+                    }
+
                     break;
                 }
 
                 case 5:
                 {
-                    var resultado = AtualizarPacotes();
+                    var wingetExiste =  WingetExiste();
+                    
+                    if (wingetExiste)
+                    {
+                        var resultado = AtualizarPacotes();
 
-                    Console.Clear();
+                        Console.WriteLine(resultado);
+                    }
 
-                    Console.WriteLine(resultado);
+                    else
+                    {
+                        InstalarWinget();
+                    }
                     break;
                 }
             }
@@ -114,25 +127,58 @@ public static class Program
         try
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            
+            var repositoriesPath = Path.Combine(documents, "DEVELOPER", "repositories");
+
+            const string destinoRepo = @"D:\Codigos\";
 
             const string destino = @"D:\Backups\";
-
+            
             foreach (var directory in Directory.GetDirectories(documents))
             {
                 if (!directory.Contains("Assetto") && !directory.Contains("iRacing") && !directory.Contains("Automobilista") && !directory.Contains("Race") && !directory.Contains("My Games"))
                     continue;
                 
                 var nomePasta = Path.GetFileName(directory);
-                
-                StartInfo.FileName = "robocopy";
-                StartInfo.Arguments = $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD logs replay cache /R:3 /W:5";
 
-                var process = Process.Start(StartInfo);
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
+                };
+
+                var process = Process.Start(startInfo);
                 process?.WaitForExit();
                 
+                if (process is { ExitCode: > 3 })
+                {
+                    Console.WriteLine($"Erro ao copiar: {directory}");
+                }
             }
 
-            return $"TODOS ARQUIVOS COPIADOS PARA: {destino}";
+            if (!Directory.Exists(repositoriesPath)) 
+                return "PASTA NÃO ENCONTRADA";
+            
+            foreach (var directory in Directory.GetDirectories(repositoriesPath))
+            {
+                var nomePasta = Path.GetFileName(directory);
+
+                var repositories = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments =
+                        $"\"{directory}\" \"{destinoRepo}{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
+                });
+
+                repositories?.WaitForExit();
+                
+                if (repositories is { ExitCode: > 3 })
+                {
+                    Console.WriteLine($"Erro ao copiar repo: {directory}");
+                }
+            }
+
+            return "TODOS ARQUIVOS COPIADOS";
         }
         catch (Exception ex)
         {
@@ -155,12 +201,16 @@ public static class Program
                     continue;
                 
                 var nomePasta = Path.GetFileName(directory);
-                
-                StartInfo.FileName = "robocopy";
-                StartInfo.Arguments = $"\"{directory}\" \"{destino}\\{nomePasta}\" /E /COPY:DAT /XD logs replay cache /R:3 /W:5";
 
-                var process = Process.Start(StartInfo);
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{directory}\" \"{destino}\\{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
+                };
+
+                var process = Process.Start(startInfo);
                 process?.WaitForExit();
+                
                 
             }
 
@@ -178,15 +228,15 @@ public static class Program
         try
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            
-            
-            StartInfo.FileName = "cmd.exe";
-            StartInfo.Arguments = $@"/C mkdir {documents}\DEVELOPER\repositories";
 
-            var process = Process.Start(StartInfo);
-            process?.WaitForExit();
+            var basePath = Path.Combine(documents, "DEVELOPER", "repositories");
             
-            return $"PASTA \"{documents}\\DEVELOPER\\repositories\" CRIADA";
+            Directory.CreateDirectory(basePath);
+            Directory.CreateDirectory(Path.Combine(basePath, "C#"));
+            Directory.CreateDirectory(Path.Combine(basePath, "Python"));
+            
+            return $"TODAS AS PASTAS FORAM CRIADAS EM {basePath}";
+            
         }
         catch (Exception ex)
         {
@@ -194,6 +244,56 @@ public static class Program
         }
     }
 
+
+    private static bool WingetExiste()
+    {
+        try
+        {
+            var startInfo = Process.Start(new ProcessStartInfo
+            {
+                FileName = "where",
+                Arguments = "winget",
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            });
+
+            startInfo?.WaitForExit();
+            return startInfo?.ExitCode == 0;
+        }
+
+        catch
+        {
+            return false;
+        }
+    }
+
+
+    private static void InstalarWinget()
+    {
+        try
+        {
+            var opcao = LerString("DIGITE \"S\" PARA SIM E \"N\" PARA NÃO\nO SISTEMA NÃO POSSUI O INSTALADOR, DESEJA INSTALAR PARA QUE SEJA POSSÍVEL INSTALAR OS PACOTES?\nAO ESCOLHER SIM, O DOWNLOAD IRÁ INICIAR PELO SEU NAVEGADOR\nSua escolha: ").ToUpper();
+            if (opcao is not ("S" or "SIM")) return;
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://aka.ms/getwinget",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERRO AO BAIXAR O INSTALADOR. ERRO {ex.Message}");
+            }
+        }
+
+        catch
+        {
+            // ignored
+        }
+    }
+    
 
     private static string InstalarPacotes()
     {
@@ -229,10 +329,13 @@ public static class Program
             
             foreach (var app in apps)
             {
-                StartInfo.FileName = "winget";
-                StartInfo.Arguments = $"install {app}";
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "winget",
+                    Arguments = $"install {app} --silent --accept-package-agreements --accept-source-agreements"
+                };
 
-                var process = Process.Start(StartInfo);
+                var process = Process.Start(startInfo);
                 process?.WaitForExit();
             }
             
@@ -249,10 +352,13 @@ public static class Program
     {
         try
         {
-            StartInfo.FileName = "winget";
-            StartInfo.Arguments = "upgrade --include-unknown --all";
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "winget",
+                Arguments = "upgrade --include-unknown --all"
+            };
 
-            var process = Process.Start(StartInfo);
+            var process = Process.Start(startInfo);
             process?.WaitForExit();
 
             return "APLICATIVOS ATUALIZADOS.";
@@ -271,15 +377,36 @@ public static class Program
             while (true)
             {
                 Console.Write(msg);
-                if (int.TryParse(Console.ReadLine(), out var inteiro))
+                if (int.TryParse(Console.ReadLine()?.Trim(), out var inteiro))
                 {
                     return inteiro;
                 }
             }
         }
-        catch (Exception)
+        catch
         {
             return -1;
+        }
+    }
+
+    
+    private static string LerString(string msg)
+    {
+        try
+        {
+            while (true)
+            {
+                Console.Write(msg);
+                var str = Console.ReadLine()?.Trim();
+                if (!string.IsNullOrWhiteSpace(str))
+                {
+                    return str;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return "";
         }
     }
 }
