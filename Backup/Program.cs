@@ -133,6 +133,8 @@ public static class Program
             const string destinoRepo = @"D:\Codigos\";
 
             const string destino = @"D:\Backups\";
+
+            const string drive = @"D:\";
             
             foreach (var directory in Directory.GetDirectories(documents))
             {
@@ -141,16 +143,15 @@ public static class Program
                 
                 var nomePasta = Path.GetFileName(directory);
 
-                var startInfo = new ProcessStartInfo
+                var documentsBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
                     Arguments = $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
-                };
-
-                var process = Process.Start(startInfo);
-                process?.WaitForExit();
+                });
                 
-                if (process is { ExitCode: > 3 })
+                documentsBackup?.WaitForExit();
+                
+                if (documentsBackup is { ExitCode: > 3 })
                 {
                     Console.WriteLine($"Erro ao copiar: {directory}");
                 }
@@ -166,8 +167,7 @@ public static class Program
                 var repositories = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments =
-                        $"\"{directory}\" \"{destinoRepo}{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
+                    Arguments = $"\"{directory}\" \"{destinoRepo}{nomePasta}\" /E /COPY:DAT /XD /R:3 /W:5"
                 });
 
                 repositories?.WaitForExit();
@@ -178,6 +178,28 @@ public static class Program
                 }
             }
 
+            var publishOrigem = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DEVELOPER", "repositories", "C#");
+
+            const string publishDestino = @"D:\Codigos\C#\";
+
+            var publishBackup = Process.Start(new ProcessStartInfo
+            {
+                FileName = "robocopy",
+                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /E /COPY:DAT /R:3 /W:5"
+            });
+            
+            publishBackup?.WaitForExit();
+            
+            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "downloads", "TUDO");
+            
+            var downloadsBackup = Process.Start(new ProcessStartInfo
+            {
+                FileName = "robocopy",
+                Arguments = $"\"{downloadsPath}\" \"{drive}TUDO\" /E /MOVE /R:3 /W:5"
+            });
+            
+            downloadsBackup?.WaitForExit();
+            
             return "TODOS ARQUIVOS COPIADOS";
         }
         catch (Exception ex)
@@ -192,6 +214,8 @@ public static class Program
         try
         {
             const string pastaBackup = @"D:\Backups\";
+
+            const string drive = @"D:\";
 
             var destino = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
@@ -210,9 +234,29 @@ public static class Program
 
                 var process = Process.Start(startInfo);
                 process?.WaitForExit();
-                
-                
             }
+
+            const string publishOrigem = @"D:\Codigos\C#";
+            
+            var publishDestino = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DEVELOPER", "repositories", "C#");
+
+            var publishBackup = Process.Start(new ProcessStartInfo
+            {
+                FileName = "robocopy",
+                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /E /COPY:DAT /R:3 /W:5"
+            });
+            
+            publishBackup?.WaitForExit();
+            
+            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "downloads", "TUDO");
+            
+            var downloadsBackup = Process.Start(new ProcessStartInfo
+            {
+                FileName = "robocopy",
+                Arguments = $"\"{drive}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
+            });
+            
+            downloadsBackup?.WaitForExit();
 
             return $"TODOS ARQUIVOS COPIADOS PARA: {destino}";
         }
