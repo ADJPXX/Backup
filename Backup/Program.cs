@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Principal;
+using System.Text.Json;
 
 namespace Backup;
 
@@ -11,7 +12,9 @@ public static class Program
         var principal = new WindowsPrincipal(identity);
         return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
-    
+
+
+    private static Config? _config;
     
     public static void Main(string[] args)
     {
@@ -38,6 +41,19 @@ public static class Program
             return;
         }
 
+        try
+        {
+            const string jsonPath = @"D:\Instaladores\BackupConfig.json";
+
+            var json = File.ReadAllText(jsonPath);
+
+            _config = JsonSerializer.Deserialize<Config>(json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        
         Menu();
     }
     
@@ -136,24 +152,30 @@ public static class Program
 
             const string drive = @"D:\";
             
+            var excludedFolders = string.Join(' ', _config!.ExcludedFolders);
+            
             foreach (var directory in Directory.GetDirectories(documents))
             {
-                if (!directory.Contains("Assetto") && !directory.Contains("iRacing") && !directory.Contains("Automobilista") && !directory.Contains("Race") && !directory.Contains("My Games"))
-                    continue;
-                
-                var nomePasta = Path.GetFileName(directory);
+                foreach (var dir in _config.BackupFolders)
+                {
+                    if (!directory.Contains(dir))
+                        continue;
 
-                var documentsBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
-                });
-                
-                documentsBackup?.WaitForExit();
-                
-                if (documentsBackup is { ExitCode: > 3 })
-                {
-                    Console.WriteLine($"Erro ao copiar: {directory}");
+                    var nomePasta = Path.GetFileName(directory);
+
+                    var documentsBackup = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "robocopy",
+                        Arguments =
+                            $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
+                    });
+
+                    documentsBackup?.WaitForExit();
+
+                    if (documentsBackup is { ExitCode: > 3 })
+                    {
+                        Console.WriteLine($"Erro ao copiar: {directory}");
+                    }
                 }
             }
 
@@ -221,19 +243,23 @@ public static class Program
 
             foreach (var directory in Directory.GetDirectories(pastaBackup))
             {
-                if (!directory.Contains("Assetto") && !directory.Contains("iRacing") && !directory.Contains("Automobilista") && !directory.Contains("Race") && !directory.Contains("My Games"))
-                    continue;
-                
-                var nomePasta = Path.GetFileName(directory);
-
-                var startInfo = new ProcessStartInfo
+                foreach (var dir in _config!.BackupFolders)
                 {
-                    FileName = "robocopy",
-                    Arguments = $"\"{directory}\" \"{destino}\\{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
-                };
+                    if (!directory.Contains(dir))
+                        continue;
 
-                var process = Process.Start(startInfo);
-                process?.WaitForExit();
+                    var nomePasta = Path.GetFileName(directory);
+
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = "robocopy",
+                        Arguments =
+                            $"\"{directory}\" \"{destino}\\{nomePasta}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
+                    };
+
+                    var process = Process.Start(startInfo);
+                    process?.WaitForExit();
+                }
             }
 
             const string publishOrigem = @"D:\Codigos\C#";
@@ -343,25 +369,6 @@ public static class Program
     {
         try
         {
-            List<string> apps = 
-            [
-                "Microsoft.AppInstaller",
-                "Microsoft.WindowsTerminal",
-                "Microsoft.DotNet.SDK.10",
-                "Python.Python.3.14",
-                "Oracle.JavaRuntimeEnvironment",
-                "Git.Git",
-                "Axosoft.GitKraken",
-                "AgileBits.1Password",
-                "Logitech.GHUB",
-                "Google.Chrome",
-                "Parsec.Parsec",
-                "Valve.Steam",
-                "Discord.Discord",
-                "OBSProject.OBSStudio",
-                "JetBrains.Toolbox"
-            ];
-
             var uninstall = new ProcessStartInfo
             {
                 FileName = "winget",
@@ -371,7 +378,7 @@ public static class Program
             var processUninstall = Process.Start(uninstall);
             processUninstall?.WaitForExit();
             
-            foreach (var app in apps)
+            foreach (var app in _config!.Apps)
             {
                 var startInfo = new ProcessStartInfo
                 {
@@ -382,7 +389,8 @@ public static class Program
                 var process = Process.Start(startInfo);
                 process?.WaitForExit();
             }
-            
+
+            Console.ReadKey();
             return "APLICATIVOS INSTALADOS COM SUCESSO.";
         }
         catch (Exception ex)
