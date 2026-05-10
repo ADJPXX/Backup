@@ -18,8 +18,6 @@ public static class Program
     
     public static void Main(string[] args)
     {
-        /* CRIAR UM PROGRAMA QUE COPIE TODAS AS PASTAS DE "BACKUP" PARA O HD, ASSIM POSSO EXECUTAR ELE ANTES DE FORMATAR O PC */
-
         if (!IsAdmin())
         {
             var startInfo = new ProcessStartInfo
@@ -389,8 +387,7 @@ public static class Program
                 var process = Process.Start(startInfo);
                 process?.WaitForExit();
             }
-
-            Console.ReadKey();
+            
             return "APLICATIVOS INSTALADOS COM SUCESSO.";
         }
         catch (Exception ex)
