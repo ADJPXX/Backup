@@ -41,7 +41,7 @@ public static class Program
 
         try
         {
-            const string jsonPath = @"D:\Instaladores\BackupConfig.json";
+            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BackupConfig.json");
 
             var json = File.ReadAllText(jsonPath);
 
@@ -129,6 +129,12 @@ public static class Program
                     {
                         InstalarWinget();
                     }
+                    break;
+                }
+
+                default:
+                {
+                    Console.WriteLine("Opção inválida.");
                     break;
                 }
             }
@@ -267,7 +273,7 @@ public static class Program
             var publishBackup = Process.Start(new ProcessStartInfo
             {
                 FileName = "robocopy",
-                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /E /COPY:DAT /R:3 /W:5"
+                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /COPY:DAT /R:3 /W:5"
             });
             
             publishBackup?.WaitForExit();
@@ -300,8 +306,11 @@ public static class Program
             var basePath = Path.Combine(documents, "DEVELOPER", "repositories");
             
             Directory.CreateDirectory(basePath);
-            Directory.CreateDirectory(Path.Combine(basePath, "C#"));
-            Directory.CreateDirectory(Path.Combine(basePath, "Python"));
+
+            foreach (var directory in _config!.FoldersToCreate) 
+            {
+                Directory.CreateDirectory(Path.Combine(basePath, directory));
+            }
             
             return $"TODAS AS PASTAS FORAM CRIADAS EM {basePath}";
             
