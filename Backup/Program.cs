@@ -67,7 +67,7 @@ public static class Program
         {
             Console.WriteLine(ex.Message);
         }
-
+        
         DevDriveExiste();
         Menu();
     }
@@ -77,7 +77,7 @@ public static class Program
     {
         while (true)
         {
-            var opcao = LerInt("\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP\n[ 2 ]RESTAURAR BACKUP\n[ 3 ]CRIAR DIRETÓRIO\n[ 4 ]INSTALAR PACOTES\n[ 5 ]ATUALIZAR PACOTES\nSua opção: ");
+            var opcao = LerInt("\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP\n[ 2 ]RESTAURAR BACKUP\n[ 3 ]CRIAR DIRETÓRIO\n[ 4 ]INSTALAR PACOTES\n[ 5 ]ATUALIZAR PACOTES\n[ 6 ]ABRIR LINKS PARA DOWNLOAD DE DRIVERS\nSua opção: ");
 
             Console.Clear();
             
@@ -146,6 +146,12 @@ public static class Program
                     {
                         InstalarWinget();
                     }
+                    break;
+                }
+
+                case 6:
+                {
+                    AbrirLinks();
                     break;
                 }
 
@@ -337,6 +343,34 @@ public static class Program
         catch (Exception ex)
         {
             return $"ERRO: {ex.Message}";
+        }
+    }
+
+
+    private static void AbrirLinks()
+    {
+        try
+        {
+            foreach (var link in _config!.Links)
+            {
+                var abrirLinks = Process.Start(new ProcessStartInfo
+                {
+                    FileName = $"{link}",
+                    UseShellExecute = true
+                });
+
+                if (link.Contains("us.ugreen.com"))
+                {
+                    Console.WriteLine("DIGITE \"80889\" NA BARRA DE PESQUISA DO SITE \"us.ugreen.com\" PARA BAIXAR O DRIVER DO MODELO CERTO!");
+                }
+
+                abrirLinks?.WaitForExit();
+            }
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
         }
     }
     
