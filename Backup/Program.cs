@@ -15,6 +15,15 @@ public static class Program
 
 
     private static Config? _config;
+
+    private const string BackupDrive = @"D:\Backups\";
+    
+    private const string BackupCodigos = @"D:\Codigos\";
+    
+    private const string BackupDriveLetter = @"D:\";
+    
+    private const string DevDrive = @"E:\";
+
     
     public static void Main(string[] args)
     {
@@ -46,12 +55,20 @@ public static class Program
             var json = File.ReadAllText(jsonPath);
 
             _config = JsonSerializer.Deserialize<Config>(json);
+
+            if (_config == null)
+            {
+                Console.WriteLine("Erro ao carregar as configurações.");
+                return;
+            }
+            
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
-        
+
+        DevDriveExiste();
         Menu();
     }
     
@@ -148,21 +165,15 @@ public static class Program
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             
-            var repositoriesPath = Path.Combine(documents, "DEVELOPER", "repositories");
-
-            const string destinoRepo = @"D:\Codigos\";
-
-            const string destino = @"D:\Backups\";
-
-            const string drive = @"D:\";
+            var repositoriesPath = Path.Combine(DevDrive, "Dev", "Repositories");
             
-            var excludedFolders = string.Join(' ', _config!.ExcludedFolders);
+            var excludedFolders = string.Join(' ', _config!.ExcludedFolders.Select(folder => $"\"{folder}\""));
             
             foreach (var directory in Directory.GetDirectories(documents))
             {
                 foreach (var dir in _config.BackupFolders)
                 {
-                    if (!directory.Contains(dir))
+                    if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     var nomePasta = Path.GetFileName(directory);
@@ -171,7 +182,7 @@ public static class Program
                     {
                         FileName = "robocopy",
                         Arguments =
-                            $"\"{directory}\" \"{destino}{nomePasta}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
+                            $"\"{directory}\" \"{BackupDrive}{nomePasta}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
                     });
 
                     documentsBackup?.WaitForExit();
@@ -193,7 +204,7 @@ public static class Program
                 var repositories = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{directory}\" \"{destinoRepo}{nomePasta}\" /E /COPY:DAT /XD /R:3 /W:5"
+                    Arguments = $"\"{directory}\" \"{BackupCodigos}{nomePasta}\" /E /COPY:DAT /R:3 /W:5"
                 });
 
                 repositories?.WaitForExit();
@@ -204,24 +215,24 @@ public static class Program
                 }
             }
 
-            var publishOrigem = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DEVELOPER", "repositories", "C#");
+            var publishOrigem = Path.Combine(DevDrive, "Dev", "Repositories", "C#");
 
-            const string publishDestino = @"D:\Codigos\C#\";
+            var publishDestino = Path.Combine(BackupCodigos, "C#");
 
             var publishBackup = Process.Start(new ProcessStartInfo
             {
                 FileName = "robocopy",
-                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /E /COPY:DAT /R:3 /W:5"
+                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /COPY:DAT /R:3 /W:5"
             });
             
             publishBackup?.WaitForExit();
             
-            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "downloads", "TUDO");
+            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
             
             var downloadsBackup = Process.Start(new ProcessStartInfo
             {
                 FileName = "robocopy",
-                Arguments = $"\"{downloadsPath}\" \"{drive}TUDO\" /E /MOVE /R:3 /W:5"
+                Arguments = $"\"{downloadsPath}\" \"{BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5"
             });
             
             downloadsBackup?.WaitForExit();
@@ -239,17 +250,13 @@ public static class Program
     {
         try
         {
-            const string pastaBackup = @"D:\Backups\";
-
-            const string drive = @"D:\";
-
             var destino = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            foreach (var directory in Directory.GetDirectories(pastaBackup))
+            foreach (var directory in Directory.GetDirectories(BackupDrive))
             {
                 foreach (var dir in _config!.BackupFolders)
                 {
-                    if (!directory.Contains(dir))
+                    if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     var nomePasta = Path.GetFileName(directory);
@@ -266,9 +273,9 @@ public static class Program
                 }
             }
 
-            const string publishOrigem = @"D:\Codigos\C#";
+            var publishOrigem = Path.Combine(BackupCodigos, "C#");
             
-            var publishDestino = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DEVELOPER", "repositories", "C#");
+            var publishDestino = Path.Combine(DevDrive, "Dev", "Repositories", "C#");
 
             var publishBackup = Process.Start(new ProcessStartInfo
             {
@@ -278,12 +285,24 @@ public static class Program
             
             publishBackup?.WaitForExit();
             
-            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "downloads", "TUDO");
+            var gitOrigem = Path.Combine(BackupCodigos, "C#");
+            
+            var gitDestino = Path.Combine(DevDrive, "Dev", "Repositories", "C#");
+
+            var gitBackup = Process.Start(new ProcessStartInfo
+            {
+                FileName = "robocopy",
+                Arguments = $"\"{gitOrigem}\" \"{gitDestino}\" .gitignore /COPY:DAT /R:3 /W:5"
+            });
+
+            gitBackup?.WaitForExit();
+            
+            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
             
             var downloadsBackup = Process.Start(new ProcessStartInfo
             {
                 FileName = "robocopy",
-                Arguments = $"\"{drive}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
+                Arguments = $"\"{BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
             });
             
             downloadsBackup?.WaitForExit();
@@ -301,9 +320,9 @@ public static class Program
     {
         try
         {
-            var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            
 
-            var basePath = Path.Combine(documents, "DEVELOPER", "repositories");
+            var basePath = Path.Combine(DevDrive, "Dev", "Repositories");
             
             Directory.CreateDirectory(basePath);
 
@@ -317,11 +336,11 @@ public static class Program
         }
         catch (Exception ex)
         {
-            return  $"ERRO: {ex.Message}";
+            return $"ERRO: {ex.Message}";
         }
     }
-
-
+    
+    
     private static bool WingetExiste()
     {
         try
@@ -424,6 +443,27 @@ public static class Program
         catch (Exception ex)
         {
             return $"ERRO: {ex.Message}";
+        }
+    }
+
+
+    private static void DevDriveExiste()
+    {
+        var driveExiste = DriveInfo.GetDrives().Any(drive => drive.Name.Equals(DevDrive, StringComparison.OrdinalIgnoreCase));
+
+        if (!driveExiste)
+        {
+            Console.WriteLine($"Drive \"{DevDrive}\" não encontrado, vou abrir a página de criação de drive para você fazer o Dev Drive\nAperte qualquer tecla para abrir a página de criação de drive.");
+
+            Console.ReadKey();
+            
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "ms-settings:disksandvolumes",
+                UseShellExecute = true
+            });
+
+            Console.Clear();
         }
     }
     
