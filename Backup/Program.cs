@@ -12,8 +12,8 @@ public static class Program
         var principal = new WindowsPrincipal(identity);
         return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
-
-
+    
+    
     private static Config? _config;
 
     private const string BackupDrive = @"D:\Backups\";
@@ -24,6 +24,11 @@ public static class Program
     
     private const string DevDrive = @"E:\";
 
+    private static readonly string VideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
+    
+    private static readonly string TudoExiste = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+    
+    private static readonly string VideosGravadosExiste = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
     
     public static void Main(string[] args)
     {
@@ -233,17 +238,39 @@ public static class Program
             
             publishBackup?.WaitForExit();
             
-            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+            if (Directory.Exists(TudoExiste))
+            {
+                var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+                
+                var downloadsBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{downloadsPath}\" \"{BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5"
+                });
+                
+                downloadsBackup?.WaitForExit();
+            }
+            else
+            {
+                Console.WriteLine("NÃO CONTEM A PASTA \"TUDO\"");
+            }
             
-            var downloadsBackup = Process.Start(new ProcessStartInfo
+            var existeVideos = ExisteVideos();
+
+            if (!existeVideos)
+            {
+                return "BACKUP FEITO DE TODOS OS ARQUIVOS";
+            }
+            
+            var videosBackup = Process.Start(new ProcessStartInfo
             {
                 FileName = "robocopy",
-                Arguments = $"\"{downloadsPath}\" \"{BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5"
+                Arguments = $"\"{VideosPath}\" \"{BackupDriveLetter}Vídeos gravados\" /E /COPY:DAT /R:3 /W:5"
             });
             
-            downloadsBackup?.WaitForExit();
-            
-            return "TODOS ARQUIVOS COPIADOS";
+            videosBackup?.WaitForExit();
+
+            return "BACKUP FEITO DE TODOS OS ARQUIVOS";
         }
         catch (Exception ex)
         {
@@ -300,20 +327,45 @@ public static class Program
                 FileName = "robocopy",
                 Arguments = $"\"{gitOrigem}\" \"{gitDestino}\" .gitignore /COPY:DAT /R:3 /W:5"
             });
-
+            
             gitBackup?.WaitForExit();
-            
-            var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
-            
-            var downloadsBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
-            });
-            
-            downloadsBackup?.WaitForExit();
 
-            return $"TODOS ARQUIVOS COPIADOS PARA: {destino}";
+            var tudoExiste = Path.Combine(BackupDriveLetter, "TUDO");
+            
+            if (Directory.Exists(tudoExiste))
+            {
+                var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+
+                var downloadsBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
+                });
+
+                downloadsBackup?.WaitForExit();
+            }
+            else
+            {
+                Console.WriteLine("NÃO CONTEM PASTA \"TUDO\"");
+            }
+
+            if (Directory.Exists(VideosGravadosExiste))
+            {
+                var videosBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{BackupDriveLetter}Vídeos gravados\" \"{VideosPath}\" /E /MOVE /R:3 /W:5"
+                });
+
+                videosBackup?.WaitForExit();
+            }
+
+            else
+            {
+                Console.WriteLine("NÃO CONTEM PASTA \"Vídeos gravados\"");
+            }
+            
+            return "TODOS ARQUIVOS RESTAURADOS";
         }
         catch (Exception ex)
         {
@@ -326,9 +378,11 @@ public static class Program
     {
         try
         {
-            
-
             var basePath = Path.Combine(DevDrive, "Dev", "Repositories");
+            
+            var recordedVideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
+            
+            Directory.CreateDirectory(recordedVideosPath);
             
             Directory.CreateDirectory(basePath);
 
@@ -337,8 +391,7 @@ public static class Program
                 Directory.CreateDirectory(Path.Combine(basePath, directory));
             }
             
-            return $"TODAS AS PASTAS FORAM CRIADAS EM {basePath}";
-            
+            return "TODAS AS PASTAS FORAM CRIADAS";
         }
         catch (Exception ex)
         {
@@ -353,7 +406,7 @@ public static class Program
         {
             foreach (var link in _config!.Links)
             {
-                var abrirLinks = Process.Start(new ProcessStartInfo
+                Process.Start(new ProcessStartInfo
                 {
                     FileName = $"{link}",
                     UseShellExecute = true
@@ -363,14 +416,78 @@ public static class Program
                 {
                     Console.WriteLine("DIGITE \"80889\" NA BARRA DE PESQUISA DO SITE \"us.ugreen.com\" PARA BAIXAR O DRIVER DO MODELO CERTO!");
                 }
-
-                abrirLinks?.WaitForExit();
             }
         }
 
         catch (Exception ex)
         {
             Console.WriteLine($"Erro: {ex.Message}");
+        }
+    }
+
+
+    private static bool ExisteVideos()
+    {
+        try
+        {
+            double tamanhoTotal = 0;
+
+            var tamanho = "MB";
+            
+            var diretorios = Directory.GetDirectories(VideosPath);
+
+            if (diretorios.Length <= 0)
+            {
+                return false;
+            }
+
+            var files = Directory.GetFiles(VideosPath, "*", SearchOption.AllDirectories);
+            
+            foreach (var file in files)
+            {
+                var infoFile = new FileInfo(file);
+
+                var mb = infoFile.Length / 1024d / 1024d;
+
+                tamanhoTotal += mb;
+            }
+
+            switch (tamanhoTotal)
+            {
+                case 0d:
+                {
+                    return false;
+                }
+                case >= 1024d:
+                {
+                    tamanhoTotal /= 1024d;
+                    tamanho = "GB";
+                    break;
+                }
+            }
+
+            while (true)
+            {
+                Console.WriteLine($"Foram encontrados vídeos e o tamanho total deles é: {tamanhoTotal:F2} {tamanho}\nVocê gostaria de fazer backup deles? Digite \"S\" para SIM e \"N\" para NÃO");
+                var opcao = LerString("Sua escolha: ").ToUpper();
+
+                switch (opcao)
+                {
+                    case "S":
+                        return true;
+                    case "N":
+                        return false;
+                    default:
+                        Console.Clear();
+                        Console.WriteLine("OPÇÃO INVÁLIDA!");
+                        break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+            return false;
         }
     }
     
