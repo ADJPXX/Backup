@@ -21,6 +21,8 @@ public static class Program
     private const string BackupCodigos = @"D:\Codigos\";
     
     private const string BackupDriveLetter = @"D:\";
+
+    private const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
     
     private const string DevDrive = @"E:\";
 
@@ -82,7 +84,7 @@ public static class Program
     {
         while (true)
         {
-            var opcao = LerInt("\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP\n[ 2 ]RESTAURAR BACKUP\n[ 3 ]CRIAR DIRETÓRIO\n[ 4 ]INSTALAR PACOTES\n[ 5 ]ATUALIZAR PACOTES\n[ 6 ]ABRIR LINKS PARA DOWNLOAD DE DRIVERS\nSua opção: ");
+            var opcao = LerInt("\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP PARA O DRIVE\n[ 2 ]FAZER BACKUP PARA A NUVEM\n[ 3 ]RESTAURAR BACKUP\n[ 4 ]CRIAR DIRETÓRIO\n[ 5 ]INSTALAR PACOTES\n[ 6 ]ATUALIZAR PACOTES\n[ 7 ]ABRIR LINKS PARA DOWNLOAD DE DRIVERS\nSua opção: ");
 
             Console.Clear();
             
@@ -101,13 +103,21 @@ public static class Program
 
                 case 2:
                 {
-                    var resultado = RestaurarBackup();
+                    var resultado = FazerBackupNuvem();
 
                     Console.WriteLine(resultado);
                     break;
                 }
 
                 case 3:
+                {
+                    var resultado = RestaurarBackup();
+
+                    Console.WriteLine(resultado);
+                    break;
+                }
+
+                case 4:
                 {
                     var resultado = CriarDiretório();
                     
@@ -116,7 +126,7 @@ public static class Program
                     break;
                 }
 
-                case 4:
+                case 5:
                 {
                     var wingetExiste = WingetExiste();
 
@@ -136,7 +146,7 @@ public static class Program
                     break;
                 }
 
-                case 5:
+                case 6:
                 {
                     var wingetExiste =  WingetExiste();
                     
@@ -154,7 +164,7 @@ public static class Program
                     break;
                 }
 
-                case 6:
+                case 7:
                 {
                     AbrirLinks();
                     break;
@@ -279,6 +289,43 @@ public static class Program
     }
 
 
+    private static string FazerBackupNuvem()
+    {
+        try
+        {
+            foreach (var directory in Directory.GetDirectories(BackupDriveLetter))
+            {
+                foreach (var dir in _config!.CloudBackupFolders)
+                {
+                    if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                    
+                    var nomePasta = Path.GetFileName(directory);
+
+                    var destino = Path.Combine(CloudBackup, nomePasta);
+
+                    var backupNuvem = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "robocopy",
+                        Arguments = $"\"{directory}\" \"{destino}\" /E /COPY:DAT /R:3 /W:5"
+                    });
+
+                    backupNuvem?.WaitForExit();
+                }
+            }
+
+            return "BACKUP NA NUVEM CONCLUIDO";
+        }
+
+        catch (Exception ex)
+        {
+            return $"ERRO: {ex.Message}";
+        }
+    }
+    
+    
     private static string RestaurarBackup()
     {
         try
