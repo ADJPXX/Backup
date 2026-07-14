@@ -75,7 +75,11 @@ public static class Program
             Console.WriteLine(ex.Message);
         }
         
+        
+        Scheduler.VerificarTarefas(_config!.Tasks);
+        
         DevDriveExiste();
+        
         Menu();
     }
     

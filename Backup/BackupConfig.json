@@ -1,0 +1,74 @@
+{
+  "Apps": [
+    "Microsoft.AppInstaller",
+    "Microsoft.WindowsTerminal",
+    "Microsoft.DotNet.SDK.10",
+    "Python.Python.3.14",
+    "Oracle.JavaRuntimeEnvironment",
+    "Git.Git",
+    "Axosoft.GitKraken",
+    "AgileBits.1Password",
+    "Logitech.GHUB",
+    "Google.Chrome",
+    "Parsec.Parsec",
+    "Valve.Steam",
+    "Discord.Discord",
+    "OBSProject.OBSStudio",
+    "JetBrains.Toolbox",
+    "Google.GoogleDrive"
+  ],
+  
+  "Tasks": [
+    {
+      "Name": "TempCleaner",
+      "ExecutablePath": "C:\\Users\\Adrie\\Downloads\\TUDO\\SCRIPTS\\TempCleaner.exe"
+    },
+    {
+      "Name": "CloudBackup",
+      "ExecutablePath": "C:\\Users\\Adrie\\Downloads\\TUDO\\SCRIPTS\\CloudBackup\\CloudBackup.exe"
+    }
+  ],
+
+  "BackupFolders": [
+    "Assetto Corsa",
+    "Assetto Corsa Competizione",
+    "iRacing",
+    "Automobilista 2",
+    "RaceLabApps",
+    "My Games"
+  ],
+
+  "CloudBackupFolders": [
+   "Backups",
+   "Book do globis",
+   "Codigos",
+   "Contratos apartamentos",
+   "Fotos Steam",
+   "Instaladores",
+   "Jogos e emuladores",
+   "Vídeos",
+   "Wallpapers"
+  ],
+
+  "ExcludedFolders": [
+    "log",
+    "cache",
+    "replay",
+    "logs",
+    "caches",
+    "replays"
+  ],
+
+  "FoldersToCreate": [
+    "C",
+    "C#",
+    "Python"
+  ],
+
+  "Links": [
+    "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html",
+    "https://www.nvidia.com/pt-br/drivers/",
+    "https://us.ugreen.com/pages/download"
+  ]
+
+}
