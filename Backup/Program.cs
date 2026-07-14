@@ -186,7 +186,7 @@ public static class Program
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             
-            var repositoriesPath = Path.Combine(DevDrive, "Dev", "Repositories");
+            var repositoriesPath = Path.Combine(DevDrive, "Repositories");
             
             var excludedFolders = string.Join(' ', _config!.ExcludedFolders.Select(folder => $"\"{folder}\""));
             
@@ -236,7 +236,7 @@ public static class Program
                 }
             }
 
-            var publishOrigem = Path.Combine(DevDrive, "Dev", "Repositories", "C#");
+            var publishOrigem = Path.Combine(DevDrive, "Repositories", "C#");
 
             var publishDestino = Path.Combine(BackupCodigos, "C#");
 
@@ -355,7 +355,7 @@ public static class Program
 
             var publishOrigem = Path.Combine(BackupCodigos, "C#");
             
-            var publishDestino = Path.Combine(DevDrive, "Dev", "Repositories", "C#");
+            var publishDestino = Path.Combine(DevDrive, "Repositories", "C#");
 
             var publishBackup = Process.Start(new ProcessStartInfo
             {
@@ -367,7 +367,7 @@ public static class Program
             
             var gitOrigem = Path.Combine(BackupCodigos, "C#");
             
-            var gitDestino = Path.Combine(DevDrive, "Dev", "Repositories", "C#");
+            var gitDestino = Path.Combine(DevDrive, "Repositories", "C#");
 
             var gitBackup = Process.Start(new ProcessStartInfo
             {
@@ -425,7 +425,7 @@ public static class Program
     {
         try
         {
-            var basePath = Path.Combine(DevDrive, "Dev", "Repositories");
+            var basePath = Path.Combine(DevDrive, "Repositories");
             
             var recordedVideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
             
