@@ -123,8 +123,14 @@ public static class Program
 
                 case 4:
                 {
-                    var resultado = CriarDiretório();
+                    var driveExiste = DevDriveExiste();
+
+                    if (!driveExiste)
+                    {
+                        break;
+                    }
                     
+                    var resultado = CriarDiretório();
                     
                     Console.WriteLine(resultado);
                     break;
@@ -297,6 +303,11 @@ public static class Program
     {
         try
         {
+            if (!Directory.Exists(@"G:\"))
+            {
+                return "DISCO DA NUVEM NÃO ENCONTRADO!";
+            }
+            
             foreach (var directory in Directory.GetDirectories(BackupDriveLetter))
             {
                 foreach (var dir in _config!.CloudBackupFolders)
@@ -305,7 +316,7 @@ public static class Program
                     {
                         continue;
                     }
-                    
+
                     var nomePasta = Path.GetFileName(directory);
 
                     var destino = Path.Combine(CloudBackup, nomePasta);
@@ -321,6 +332,7 @@ public static class Program
             }
 
             return "BACKUP NA NUVEM CONCLUIDO";
+
         }
 
         catch (Exception ex)
@@ -649,7 +661,7 @@ public static class Program
     }
 
 
-    private static void DevDriveExiste()
+    private static bool DevDriveExiste()
     {
         var driveExiste = DriveInfo.GetDrives().Any(drive => drive.Name.Equals(DevDrive, StringComparison.OrdinalIgnoreCase));
 
@@ -666,7 +678,11 @@ public static class Program
             });
 
             Console.Clear();
+            
+            return false;
         }
+        
+        return true;
     }
     
     
