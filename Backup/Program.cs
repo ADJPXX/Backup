@@ -30,7 +30,7 @@ public static class Program
     
     private static readonly string TudoExiste = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
     
-    private static readonly string VideosGravadosExiste = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
+    private static readonly string VideosGravadosExiste = Path.Combine(BackupDriveLetter, "Vídeos gravados");
     
     public static void Main(string[] args)
     {
@@ -75,10 +75,16 @@ public static class Program
             Console.WriteLine(ex.Message);
         }
         
-        
         Scheduler.VerificarTarefas(_config!.Tasks);
-        
-        DevDriveExiste();
+
+        var devDriveExiste = DevDriveExiste();
+
+        if (!devDriveExiste)
+        {
+            Console.WriteLine($"\nO programa irá iniciar em 30 SEGUNDOS para que você crie o Dev Drive ({DevDrive}).\nCaso contrário poderá dar problema ao fazer backup ou restaurar backup.");
+            Thread.Sleep(30000);
+            Console.Clear();
+        }
         
         Menu();
     }
@@ -225,38 +231,43 @@ public static class Program
                 }
             }
 
-            if (!Directory.Exists(repositoriesPath)) 
-                return "PASTA NÃO ENCONTRADA";
-            
-            foreach (var directory in Directory.GetDirectories(repositoriesPath))
+            if (!Directory.Exists(repositoriesPath))
             {
-                var nomePasta = Path.GetFileName(directory);
-
-                var repositories = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{directory}\" \"{BackupCodigos}{nomePasta}\" /E /COPY:DAT /R:3 /W:5"
-                });
-
-                repositories?.WaitForExit();
-                
-                if (repositories is { ExitCode: > 3 })
-                {
-                    Console.WriteLine($"Erro ao copiar repo: {directory}");
-                }
+                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {repositoriesPath}");
             }
 
-            var publishOrigem = Path.Combine(DevDrive, "Repositories", "C#");
-
-            var publishDestino = Path.Combine(BackupCodigos, "C#");
-
-            var publishBackup = Process.Start(new ProcessStartInfo
+            else
             {
-                FileName = "robocopy",
-                Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /COPY:DAT /R:3 /W:5"
-            });
-            
-            publishBackup?.WaitForExit();
+                foreach (var directory in Directory.GetDirectories(repositoriesPath))
+                {
+                    var nomePasta = Path.GetFileName(directory);
+
+                    var repositories = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "robocopy",
+                        Arguments = $"\"{directory}\" \"{BackupCodigos}{nomePasta}\" /E /COPY:DAT /R:3 /W:5"
+                    });
+
+                    repositories?.WaitForExit();
+
+                    if (repositories is { ExitCode: > 3 })
+                    {
+                        Console.WriteLine($"Erro ao copiar repo: {directory}");
+                    }
+                }
+
+                var publishOrigem = Path.Combine(DevDrive, "Repositories", "C#");
+
+                var publishDestino = Path.Combine(BackupCodigos, "C#");
+
+                var publishBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /COPY:DAT /R:3 /W:5"
+                });
+
+                publishBackup?.WaitForExit();
+            }
             
             if (Directory.Exists(TudoExiste))
             {
@@ -272,7 +283,7 @@ public static class Program
             }
             else
             {
-                Console.WriteLine("NÃO CONTEM A PASTA \"TUDO\"");
+                Console.WriteLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {TudoExiste}");
             }
             
             var existeVideos = ExisteVideos();
@@ -303,9 +314,9 @@ public static class Program
     {
         try
         {
-            if (!Directory.Exists(@"G:\"))
+            if (!Directory.Exists(CloudBackup))
             {
-                return "DISCO DA NUVEM NÃO ENCONTRADO!";
+                return "A NUVEM NÃO FOI ENCONTRADA!";
             }
             
             foreach (var directory in Directory.GetDirectories(BackupDriveLetter))
@@ -409,9 +420,9 @@ public static class Program
             }
             else
             {
-                Console.WriteLine("NÃO CONTEM PASTA \"TUDO\"");
+                Console.WriteLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {tudoExiste}");
             }
-
+            
             if (Directory.Exists(VideosGravadosExiste))
             {
                 var videosBackup = Process.Start(new ProcessStartInfo
@@ -425,7 +436,7 @@ public static class Program
 
             else
             {
-                Console.WriteLine("NÃO CONTEM PASTA \"Vídeos gravados\"");
+                Console.WriteLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {VideosGravadosExiste}");
             }
             
             return "TODOS ARQUIVOS RESTAURADOS";
@@ -537,13 +548,21 @@ public static class Program
                 switch (opcao)
                 {
                     case "S":
+                    {
                         return true;
+                    }
+                    
                     case "N":
+                    {
                         return false;
+                    }
+                    
                     default:
+                    {
                         Console.Clear();
                         Console.WriteLine("OPÇÃO INVÁLIDA!");
                         break;
+                    }
                 }
             }
         }
@@ -568,6 +587,7 @@ public static class Program
             });
 
             startInfo?.WaitForExit();
+            
             return startInfo?.ExitCode == 0;
         }
 
@@ -583,7 +603,10 @@ public static class Program
         try
         {
             var opcao = LerString("DIGITE \"S\" PARA SIM E \"N\" PARA NÃO\nO SISTEMA NÃO POSSUI O INSTALADOR, DESEJA INSTALAR PARA QUE SEJA POSSÍVEL INSTALAR OS PACOTES?\nAO ESCOLHER SIM, O DOWNLOAD IRÁ INICIAR PELO SEU NAVEGADOR\nSua escolha: ").ToUpper();
-            if (opcao is not ("S" or "SIM")) return;
+            if (opcao is not ("S" or "SIM"))
+            {
+                return;
+            }
             try
             {
                 Process.Start(new ProcessStartInfo
