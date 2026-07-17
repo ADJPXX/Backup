@@ -27,7 +27,7 @@ jobs:
 
       - name: Publicar projeto
         run: |
-          dotnet publish Backup.csproj `
+          dotnet publish ./Backup/Backup.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
