@@ -1,19 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Security.Principal;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using Backup.Models;
+using Backup.Services;
 
 namespace Backup;
 
 public static class Program
 {
-    private static bool IsAdmin()
-    {
-        var identity = WindowsIdentity.GetCurrent();
-        var principal = new WindowsPrincipal(identity);
-        return principal.IsInRole(WindowsBuiltInRole.Administrator);
-    }
-    
-    
     private static Config? _config;
 
     private const string BackupDrive = @"D:\Backups\";
@@ -36,46 +31,13 @@ public static class Program
     {
         if (!IsAdmin())
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = Process.GetCurrentProcess().MainModule!.FileName,
-                UseShellExecute = true,
-                Verb = "runas"
-            };
-
-            try
-            {
-                Process.Start(startInfo);
-            }
-            catch
-            {
-                Console.WriteLine("Permissão de administrador negada.");
-            }
-
+            ElevarAdmin();
             return;
         }
 
-        try
-        {
-            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BackupConfig.json");
-
-            var json = File.ReadAllText(jsonPath);
-
-            _config = JsonSerializer.Deserialize<Config>(json);
-
-            if (_config == null)
-            {
-                Console.WriteLine("Erro ao carregar as configurações.");
-                return;
-            }
-            
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        LerJson();
         
-        Scheduler.VerificarTarefas(_config!.Tasks);
+        SchedulerService.VerificarTarefas(_config!.Tasks);
 
         var devDriveExiste = DevDriveExiste();
 
@@ -603,21 +565,40 @@ public static class Program
         try
         {
             var opcao = LerString("DIGITE \"S\" PARA SIM E \"N\" PARA NÃO\nO SISTEMA NÃO POSSUI O INSTALADOR, DESEJA INSTALAR PARA QUE SEJA POSSÍVEL INSTALAR OS PACOTES?\nAO ESCOLHER SIM, O DOWNLOAD IRÁ INICIAR PELO SEU NAVEGADOR\nSua escolha: ").ToUpper();
-            if (opcao is not ("S" or "SIM"))
+            while (true)
             {
-                return;
-            }
-            try
-            {
-                Process.Start(new ProcessStartInfo
+                switch (opcao)
                 {
-                    FileName = "https://aka.ms/getwinget",
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ERRO AO BAIXAR O INSTALADOR. ERRO {ex.Message}");
+                    case "S" or "SIM":
+                    {
+                        try
+                        {
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = "https://aka.ms/getwinget",
+                                UseShellExecute = true
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"ERRO AO BAIXAR O INSTALADOR. ERRO {ex.Message}");
+                        }
+
+                        break;
+                    }
+
+                    case "N" or "NAO":
+                    {
+                        break;
+                    }
+
+                    default:
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Opção inválida, tente novamente.\n");
+                        continue;
+                    }
+                }
             }
         }
 
@@ -632,25 +613,23 @@ public static class Program
     {
         try
         {
-            var uninstall = new ProcessStartInfo
+            var uninstall = Process.Start(new ProcessStartInfo
             {
                 FileName = "winget",
                 Arguments = "uninstall Microsoft.OneDrive"
-            };
+            });
 
-            var processUninstall = Process.Start(uninstall);
-            processUninstall?.WaitForExit();
+            uninstall?.WaitForExit();
             
             foreach (var app in _config!.Apps)
             {
-                var startInfo = new ProcessStartInfo
+                var startInfo = Process.Start(new ProcessStartInfo
                 {
                     FileName = "winget",
                     Arguments = $"install {app} --silent --accept-package-agreements --accept-source-agreements"
-                };
+                });
 
-                var process = Process.Start(startInfo);
-                process?.WaitForExit();
+                startInfo?.WaitForExit();
             }
             
             return "APLICATIVOS INSTALADOS COM SUCESSO.";
@@ -666,14 +645,13 @@ public static class Program
     {
         try
         {
-            var startInfo = new ProcessStartInfo
+            var startInfo = Process.Start(new ProcessStartInfo
             {
                 FileName = "winget",
                 Arguments = "upgrade --include-unknown --all"
-            };
+            });
 
-            var process = Process.Start(startInfo);
-            process?.WaitForExit();
+            startInfo?.WaitForExit();
 
             return "APLICATIVOS ATUALIZADOS.";
         }
@@ -746,6 +724,177 @@ public static class Program
         catch (Exception)
         {
             return "";
+        }
+    }
+
+
+    private static void LerJson()
+    {
+        try
+        {
+            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BackupConfig.json");
+
+            if (!File.Exists(jsonPath))
+            {
+                CriarConfigPadrao(jsonPath);
+            }
+
+            var json = File.ReadAllText(jsonPath);
+
+            _config = JsonSerializer.Deserialize<Config>(json);
+
+            if (_config == null)
+            {
+                Console.WriteLine("Erro ao carregar as configurações.");
+            }
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+    private static void CriarConfigPadrao(string jsonPath)
+    {
+        var configs = new Config
+                {
+                    Apps =
+                [
+                    "Microsoft.AppInstaller",
+                    "Microsoft.WindowsTerminal",
+                    "Microsoft.DotNet.SDK.10",
+                    "Python.Python.3.14",
+                    "Oracle.JavaRuntimeEnvironment",
+                    "Git.Git",
+                    "Axosoft.GitKraken",
+                    "AgileBits.1Password",
+                    "Logitech.GHUB",
+                    "Google.Chrome",
+                    "Parsec.Parsec",
+                    "Valve.Steam",
+                    "Discord.Discord",
+                    "OBSProject.OBSStudio",
+                    "JetBrains.Toolbox",
+                    "Google.GoogleDrive"
+                ],
+
+
+                Tasks =
+                [
+                    new TaskConfig
+                    {
+                        Name = "TempCleaner",
+                        ExecutablePath = @"D:\SCRIPTS\TempCleaner.exe",
+                        Delay = 10
+                    },
+                    new TaskConfig
+                    {
+                        Name = "CloudBackup",
+                        ExecutablePath = @"D:\SCRIPTS\CloudBackup\CloudBackup.exe",
+                        Delay = 30
+                    },
+                    new TaskConfig
+                    {
+                        Name = "MyCalendar",
+                        ExecutablePath = @"D:\SCRIPTS\MyCalendar\MyCalendar.exe",
+                        Delay = 5
+                    },
+                    new TaskConfig
+                    {
+                        Name = "PS3DiscordRichPresence",
+                        ExecutablePath = @"D:\SCRIPTS\PS3DISCORD\PS3DiscordRichPresence.exe",
+                        Delay = 5
+                    }
+                ],
+
+
+                BackupFolders =
+                [
+                    "Assetto Corsa",
+                    "Assetto Corsa Competizione",
+                    "iRacing",
+                    "Automobilista 2",
+                    "RaceLabApps",
+                    "My Games"
+                ],
+
+
+                CloudBackupFolders =
+                [
+                    "Backups",
+                    "Book do globis",
+                    "Codigos",
+                    "Contratos apartamentos",
+                    "Fotos Steam",
+                    "Instaladores",
+                    "Jogos e emuladores",
+                    "Vídeos",
+                    "Wallpapers"
+                ],
+
+
+                ExcludedFolders =
+                [
+                    "log",
+                    "cache",
+                    "replay",
+                    "logs",
+                    "caches",
+                    "replays"
+                ],
+
+                FoldersToCreate =
+                [
+                    "C",
+                    "C#",
+                    "Python"
+                ],
+
+
+                Links =
+                [
+                    "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html",
+                    "https://www.nvidia.com/pt-br/drivers/",
+                    "https://us.ugreen.com/pages/download"
+                ]
+                };
+
+                var jsonWrite = JsonSerializer.Serialize(configs, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                });
+
+                File.WriteAllText(jsonPath, jsonWrite);
+    }
+
+
+    private static bool IsAdmin()
+    {
+        var identity = WindowsIdentity.GetCurrent();
+        var principal = new WindowsPrincipal(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
+
+    private static void ElevarAdmin()
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = Process.GetCurrentProcess().MainModule!.FileName,
+            UseShellExecute = true,
+            Verb = "runas"
+        };
+
+        try
+        {
+            Process.Start(startInfo);
+        }
+        catch
+        {
+            Console.WriteLine("Permissão de administrador negada.");
         }
     }
 }

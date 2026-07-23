@@ -1,8 +1,11 @@
-﻿using Microsoft.Win32.TaskScheduler;
+﻿using Backup.Models;
+using Microsoft.Win32.TaskScheduler;
 
-namespace Backup;
+// dotnet add package TaskScheduler
 
-public static class Scheduler
+namespace Backup.Services;
+
+public static class SchedulerService
 {
     public static void VerificarTarefas(List<TaskConfig> tasks)
     {
@@ -48,7 +51,7 @@ public static class Scheduler
     {
         using TaskService taskService = new();
 
-        TaskDefinition td = taskService.NewTask();
+        var td = taskService.NewTask();
 
         // Informações
         td.RegistrationInfo.Author = Environment.UserName;
@@ -69,10 +72,15 @@ public static class Scheduler
         td.Settings.StopIfGoingOnBatteries = false;
         td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
 
+        if (task.Delay < 5)
+        {
+            task.Delay = 5;
+        }
+
         // Trigger
         var trigger = new LogonTrigger
         {
-            Delay = TimeSpan.FromSeconds(30)
+            Delay = TimeSpan.FromSeconds(task.Delay)
         };
 
         td.Triggers.Add(trigger);
