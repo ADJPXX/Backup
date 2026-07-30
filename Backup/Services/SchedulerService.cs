@@ -1,34 +1,32 @@
 ﻿using Backup.Models;
-using Microsoft.Win32.TaskScheduler;
-
-// dotnet add package TaskScheduler
+using Microsoft.Win32.TaskScheduler; // dotnet add package TaskScheduler
 
 namespace Backup.Services;
 
 public static class SchedulerService
 {
-    public static void VerificarTarefas(List<TaskConfig> tasks)
+    public static void CheckTasks()
     {
-        List<TaskConfig> tarefasInexistentes = [];
+        List<TaskConfig> nonExistentTasks = [];
         
-        foreach (var task in tasks)
+        foreach (var task in Config.Configs.Tasks)
         {
-            if (!Existe(task.Name))
+            if (!TaskExists(task.Name))
             {
-                tarefasInexistentes.Add(task);
+                nonExistentTasks.Add(task);
             }
         }
         
-        if (tarefasInexistentes.Count == 0)
+        if (nonExistentTasks.Count == 0)
         {
             return;
         }
 
-        foreach (var task in tarefasInexistentes)
+        foreach (var task in nonExistentTasks)
         {
             try
             {
-                Criar(task);
+                CreateTask(task);
             }
 
             catch (Exception ex)
@@ -38,16 +36,16 @@ public static class SchedulerService
         }
     }
 
-    
-    public static bool Existe(string nome)
+
+    private static bool TaskExists(string name)
     {
         using TaskService taskService = new();
 
-        return taskService.GetTask(nome) != null;
+        return taskService.GetTask(name) != null;
     }
 
 
-    public static void Criar(TaskConfig task)
+    private static void CreateTask(TaskConfig task)
     {
         using TaskService taskService = new();
 
