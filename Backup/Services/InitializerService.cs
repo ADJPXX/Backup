@@ -16,7 +16,7 @@ public static class InitializerService
 
             if (!File.Exists(jsonPath))
             {
-                CreateDeafultSettings(jsonPath);
+                CreateDefaultSettings(jsonPath);
             }
 
             var json = File.ReadAllText(jsonPath);
@@ -39,7 +39,7 @@ public static class InitializerService
     }
 
 
-    private static void CreateDeafultSettings(string jsonPath)
+    private static void CreateDefaultSettings(string jsonPath)
     {
         var configs = new ConfigDto
         {

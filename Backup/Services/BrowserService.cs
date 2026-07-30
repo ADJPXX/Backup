@@ -6,6 +6,12 @@ namespace Backup.Services;
 
 public static class BrowserService
 {
+    private static IBrowser? _browser;
+
+    private static IPlaywright? _playwright;
+
+    private static IPage? _page;
+
     public static async Task OpenLinks()
     {
         try
@@ -37,27 +43,27 @@ public static class BrowserService
 
     private static async Task Ugreen(string model)
     {
-        if (PathsService._playwright == null)
+        if (_playwright == null)
         {
-            PathsService._playwright = await Playwright.CreateAsync();
+            _playwright = await Playwright.CreateAsync();
 
-            PathsService._browser = await PathsService._playwright.Chromium.LaunchAsync(new()
+            _browser = await _playwright.Chromium.LaunchAsync(new()
             {
                 Channel = "msedge",
                 Headless = false // true = não mostra o navegador
             });
         }
 
-        if (PathsService._page == null)
+        if (_page == null)
         {
-            PathsService._page = await PathsService._browser.NewPageAsync();
+            _page = await _browser.NewPageAsync();
 
-            await PathsService._page.GotoAsync("https://us.ugreen.com/pages/download");
+            await _page.GotoAsync("https://us.ugreen.com/pages/download");
         }
 
-        await PathsService._page.BringToFrontAsync();
+        await _page.BringToFrontAsync();
 
-        var input = PathsService._page.GetByRole(AriaRole.Textbox, new() { Name = "Search by Product SKU/Model" });
+        var input = _page.GetByRole(AriaRole.Textbox, new() { Name = "Search by Product SKU/Model" });
 
         await input.FillAsync("");
 

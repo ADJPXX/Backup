@@ -4,12 +4,6 @@ namespace Backup.Services;
 
 public static class PathsService
 {
-    public static IBrowser? _browser;
-
-    public static IPlaywright? _playwright;
-
-    public static IPage? _page;
-
     public const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
 
     public const string BackupDriveLetter = @"D:\";
