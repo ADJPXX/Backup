@@ -1,6 +1,4 @@
-﻿using Microsoft.Playwright;
-
-namespace Backup.Services;
+﻿namespace Backup.Services;
 
 public static class PathsService
 {

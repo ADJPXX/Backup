@@ -1,16 +1,14 @@
 ﻿using System.Diagnostics;
 using Backup.Models;
-using Microsoft.Playwright; // dotnet add package Microsoft.Playwright
+using OpenQA.Selenium; // dotnet add package Selenium.WebDriver
+using OpenQA.Selenium.Edge; // dotnet add package Selenium.WebDriver
+using OpenQA.Selenium.Support.UI; // dotnet add package Selenium.WebDriver
 
 namespace Backup.Services;
 
 public static class BrowserService
 {
-    private static IBrowser? _browser;
-
-    private static IPlaywright? _playwright;
-
-    private static IPage? _page;
+    private static EdgeDriver? _driver;
 
     public static async Task OpenLinks()
     {
@@ -20,7 +18,7 @@ public static class BrowserService
             {
                 if (link.Contains("us.ugreen.com"))
                 {
-                    await Ugreen("80889");
+                    await Ugreen();
                 }
 
                 if (!link.Contains("us.ugreen.com"))
@@ -41,34 +39,36 @@ public static class BrowserService
     }
 
 
-    private static async Task Ugreen(string model)
+    private static async Task Ugreen()
     {
-        if (_playwright == null)
+        try
         {
-            _playwright = await Playwright.CreateAsync();
+            Console.WriteLine("Abrindo o site...");
 
-            _browser = await _playwright.Chromium.LaunchAsync(new()
+            if (_driver == null)
             {
-                Channel = "msedge",
-                Headless = false // true = não mostra o navegador
-            });
-        }
+                var options = new EdgeOptions();
 
-        if (_page == null)
+                _driver = new EdgeDriver(options);
+            }
+
+            var driver = _driver;
+
+            await driver.Navigate().GoToUrlAsync("https://us.ugreen.com/pages/download");
+
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+            var input = wait.Until(d => d.FindElement(By.CssSelector("input[placeholder*='SKU']")));
+
+            input.Clear();
+            input.SendKeys("80889");
+            input.SendKeys(Keys.Enter);
+
+            Console.Clear();
+        }
+        catch (Exception ex)
         {
-            _page = await _browser.NewPageAsync();
-
-            await _page.GotoAsync("https://us.ugreen.com/pages/download");
+            Console.WriteLine($"Erro ao abrir o Ugreen: {ex.Message}");
         }
-
-        await _page.BringToFrontAsync();
-
-        var input = _page.GetByRole(AriaRole.Textbox, new() { Name = "Search by Product SKU/Model" });
-
-        await input.FillAsync("");
-
-        await input.PressSequentiallyAsync(model);
-
-        await input.PressAsync("Enter");
     }
 }
