@@ -3,7 +3,7 @@ using Backup.Models;
 
 namespace Backup.Services;
 
-public class DriveBackupService
+public static class DriveBackupService
 {
     private const string BackupDrive = @"D:\Backups\";
 

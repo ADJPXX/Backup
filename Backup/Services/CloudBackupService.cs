@@ -3,7 +3,7 @@ using Backup.Models;
 
 namespace Backup.Services;
 
-public class CloudBackupService
+public static class CloudBackupService
 {
     private const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
 

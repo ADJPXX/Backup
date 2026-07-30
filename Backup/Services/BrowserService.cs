@@ -6,6 +6,12 @@ namespace Backup.Services;
 
 public static class BrowserService
 {
+    private static IBrowser? _browser;
+
+    private static IPlaywright? _playwright;
+
+    private static IPage? _page;
+
     public static async Task OpenLinks()
     {
         try
@@ -14,14 +20,17 @@ public static class BrowserService
             {
                 if (link.Contains("us.ugreen.com"))
                 {
-                    await Ugreen();
+                    await Ugreen("80889");
                 }
 
-                /*Process.Start(new ProcessStartInfo
+                if (!link.Contains("us.ugreen.com"))
                 {
-                    FileName = $"{link}",
-                    UseShellExecute = true
-                });*/
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = $"{link}",
+                        UseShellExecute = true
+                    });
+                }
             }
         }
 
@@ -32,25 +41,33 @@ public static class BrowserService
     }
 
 
-    private static async Task Ugreen()
+    private static async Task Ugreen(string model)
     {
-        using var playwright = await Playwright.CreateAsync();
-
-        await using var browser = await playwright.Chromium.LaunchAsync(new()
+        if (_playwright == null)
         {
-            Channel = "msedge",
-            Headless = false // true = não mostra o navegador
-        });
+            _playwright = await Playwright.CreateAsync();
 
-        var page = await browser.NewPageAsync();
+            _browser = await _playwright.Chromium.LaunchAsync(new()
+            {
+                Channel = "msedge",
+                Headless = false // true = não mostra o navegador
+            });
+        }
 
-        await page.GotoAsync("https://us.ugreen.com/pages/download");
+        if (_page == null)
+        {
+            _page = await _browser.NewPageAsync();
 
-        var input = page.GetByRole(AriaRole.Textbox, new() { Name = "Search by Product SKU/Model" });
+            await _page.GotoAsync("https://us.ugreen.com/pages/download");
+        }
 
-        await input.ClickAsync();
+        await _page.BringToFrontAsync();
 
-        await input.PressSequentiallyAsync("80889");
+        var input = _page.GetByRole(AriaRole.Textbox, new() { Name = "Search by Product SKU/Model" });
+
+        await input.FillAsync("");
+
+        await input.PressSequentiallyAsync(model);
 
         await input.PressAsync("Enter");
     }

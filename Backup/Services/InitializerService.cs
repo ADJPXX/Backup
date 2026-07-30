@@ -6,7 +6,7 @@ using Backup.Models;
 
 namespace Backup.Services;
 
-public class InitializerService
+public static class InitializerService
 {
     public static void ReadJson()
     {

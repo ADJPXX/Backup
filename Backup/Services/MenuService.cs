@@ -1,10 +1,8 @@
-﻿using Backup.Services;
-
-namespace Backup.Services;
+﻿namespace Backup.Services;
 
 public static class MenuService
 {
-    public static void Menu()
+    public static async Task Menu()
     {
         while (true)
         {
@@ -96,7 +94,7 @@ public static class MenuService
 
                 case 7:
                 {
-                    BrowserService.OpenLinks();
+                    await BrowserService.OpenLinks();
                     break;
                 }
 
