@@ -4,7 +4,7 @@ namespace Backup;
 
 public static class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         if (!InitializerService.IsAdmin())
         {
@@ -25,6 +25,6 @@ public static class Program
             Console.Clear();
         }
 
-        await MenuService.Menu();
+        MenuService.Menu();
     }
 }

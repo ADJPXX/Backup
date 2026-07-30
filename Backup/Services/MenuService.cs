@@ -2,7 +2,7 @@
 
 public static class MenuService
 {
-    public static async Task Menu()
+    public static void Menu()
     {
         while (true)
         {
@@ -94,7 +94,7 @@ public static class MenuService
 
                 case 7:
                 {
-                    await BrowserService.OpenLinks();
+                    BrowserService.OpenLinks();
                     break;
                 }
 

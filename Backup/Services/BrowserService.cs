@@ -1,33 +1,25 @@
 ﻿using System.Diagnostics;
 using Backup.Models;
-using OpenQA.Selenium; // dotnet add package Selenium.WebDriver
-using OpenQA.Selenium.Edge; // dotnet add package Selenium.WebDriver
-using OpenQA.Selenium.Support.UI; // dotnet add package Selenium.WebDriver
 
 namespace Backup.Services;
 
 public static class BrowserService
 {
-    private static EdgeDriver? _driver;
-
-    public static async Task OpenLinks()
+    public static void OpenLinks()
     {
         try
         {
             foreach (var link in Config.Configs.Links)
             {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = $"{link}",
+                    UseShellExecute = true
+                });
+
                 if (link.Contains("us.ugreen.com"))
                 {
-                    await Ugreen();
-                }
-
-                if (!link.Contains("us.ugreen.com"))
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = $"{link}",
-                        UseShellExecute = true
-                    });
+                    Console.WriteLine("DIGITE \"80889\" NA BARRA DE PESQUISA DO SITE \"us.ugreen.com\" PARA BAIXAR O DRIVER DO MODELO CERTO!");
                 }
             }
         }
@@ -35,40 +27,6 @@ public static class BrowserService
         catch (Exception ex)
         {
             Console.WriteLine($"Erro: {ex.Message}");
-        }
-    }
-
-
-    private static async Task Ugreen()
-    {
-        try
-        {
-            Console.WriteLine("Abrindo o site...");
-
-            if (_driver == null)
-            {
-                var options = new EdgeOptions();
-
-                _driver = new EdgeDriver(options);
-            }
-
-            var driver = _driver;
-
-            await driver.Navigate().GoToUrlAsync("https://us.ugreen.com/pages/download");
-
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-
-            var input = wait.Until(d => d.FindElement(By.CssSelector("input[placeholder*='SKU']")));
-
-            input.Clear();
-            input.SendKeys("80889");
-            input.SendKeys(Keys.Enter);
-
-            Console.Clear();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erro ao abrir o Ugreen: {ex.Message}");
         }
     }
 }
