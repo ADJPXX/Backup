@@ -4,18 +4,17 @@ namespace Backup.Services;
 
 public static class DriveService
 {
-    private const string DevDrive = @"E:\";
 
     public static (bool, string) DevDriveExists()
     {
-        var driveExiste = DriveInfo.GetDrives().Any(drive => drive.Name.Equals(DevDrive, StringComparison.OrdinalIgnoreCase));
+        var driveExiste = DriveInfo.GetDrives().Any(drive => drive.Name.Equals(PathsService.DevDrive, StringComparison.OrdinalIgnoreCase));
 
         if (driveExiste)
         {
-            return (true, DevDrive);
+            return (true, PathsService.DevDrive);
         }
 
-        Console.WriteLine($"Drive \"{DevDrive}\" não encontrado, vou abrir a página de criação de drive para você fazer o Dev Drive\nAperte qualquer tecla para abrir a página de criação de drive.");
+        Console.WriteLine($"Drive \"{PathsService.DevDrive}\" não encontrado, vou abrir a página de criação de drive para você fazer o Dev Drive\nAperte qualquer tecla para abrir a página de criação de drive.");
 
         Console.ReadKey();
 
@@ -27,7 +26,7 @@ public static class DriveService
 
         Console.Clear();
 
-        return (false, DevDrive);
+        return (false, PathsService.DevDrive);
 
     }
 }

@@ -5,25 +5,13 @@ namespace Backup.Services;
 
 public static class RestoreBackupService
 {
-    private const string BackupDrive = @"D:\Backups\";
-
-    private const string BackupCodigos = @"D:\Codigos\";
-
-    private const string BackupDriveLetter = @"D:\";
-
-    private const string DevDrive = @"E:\";
-
-    private static readonly string VideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
-
-    private static readonly string VideosGravadosExiste = Path.Combine(BackupDriveLetter, "Vídeos gravados");
-
     public static string RestoreBackup()
     {
         try
         {
             var destination = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            foreach (var directory in Directory.GetDirectories(BackupDrive))
+            foreach (var directory in Directory.GetDirectories(PathsService.BackupDrive))
             {
                 foreach (var dir in Config.Configs.BackupFolders)
                 {
@@ -43,9 +31,9 @@ public static class RestoreBackupService
                 }
             }
 
-            var publishSource = Path.Combine(BackupCodigos, "C#");
+            var publishSource = Path.Combine(PathsService.BackupCodes, "C#");
 
-            var publishDestination = Path.Combine(DevDrive, "Repositories", "C#");
+            var publishDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
 
             var publishBackup = Process.Start(new ProcessStartInfo
             {
@@ -55,9 +43,9 @@ public static class RestoreBackupService
 
             publishBackup?.WaitForExit();
 
-            var gitSource = Path.Combine(BackupCodigos, "C#");
+            var gitSource = Path.Combine(PathsService.BackupCodes, "C#");
 
-            var gitDestination = Path.Combine(DevDrive, "Repositories", "C#");
+            var gitDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
 
             var gitBackup = Process.Start(new ProcessStartInfo
             {
@@ -67,7 +55,7 @@ public static class RestoreBackupService
 
             gitBackup?.WaitForExit();
 
-            var tudoExists = Path.Combine(BackupDriveLetter, "TUDO");
+            var tudoExists = Path.Combine(PathsService.BackupDriveLetter, "TUDO");
 
             if (Directory.Exists(tudoExists))
             {
@@ -76,7 +64,7 @@ public static class RestoreBackupService
                 var downloadsBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
+                    Arguments = $"\"{PathsService.BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
                 });
 
                 downloadsBackup?.WaitForExit();
@@ -86,12 +74,12 @@ public static class RestoreBackupService
                 Console.WriteLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {tudoExists}");
             }
 
-            if (Directory.Exists(VideosGravadosExiste))
+            if (Directory.Exists(PathsService.VideosGravadosExiste))
             {
                 var videosBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{BackupDriveLetter}Vídeos gravados\" \"{VideosPath}\" /E /MOVE /R:3 /W:5"
+                    Arguments = $"\"{PathsService.BackupDriveLetter}Vídeos gravados\" \"{PathsService.VideosPath}\" /E /MOVE /R:3 /W:5"
                 });
 
                 videosBackup?.WaitForExit();
@@ -99,7 +87,7 @@ public static class RestoreBackupService
 
             else
             {
-                Console.WriteLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {VideosGravadosExiste}");
+                Console.WriteLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {PathsService.VideosGravadosExiste}");
             }
 
             return "TODOS ARQUIVOS RESTAURADOS";

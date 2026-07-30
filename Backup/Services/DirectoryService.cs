@@ -4,10 +4,6 @@ namespace Backup.Services;
 
 public static class DirectoryService
 {
-    private static readonly string VideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
-
-    private const string DevDrive = @"E:\";
-
     public static bool VideosExists()
     {
         try
@@ -16,14 +12,14 @@ public static class DirectoryService
 
             var size = "MB";
 
-            var directories = Directory.GetDirectories(VideosPath);
+            var directories = Directory.GetDirectories(PathsService.VideosPath);
 
             if (directories.Length <= 0)
             {
                 return false;
             }
 
-            var files = Directory.GetFiles(VideosPath, "*", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(PathsService.VideosPath, "*", SearchOption.AllDirectories);
 
             foreach (var file in files)
             {
@@ -86,7 +82,7 @@ public static class DirectoryService
     {
         try
         {
-            var basePath = Path.Combine(DevDrive, "Repositories");
+            var basePath = Path.Combine(PathsService.DevDrive, "Repositories");
 
             var recordedVideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
 

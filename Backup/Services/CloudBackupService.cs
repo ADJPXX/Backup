@@ -5,20 +5,16 @@ namespace Backup.Services;
 
 public static class CloudBackupService
 {
-    private const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
-
-    private const string BackupDriveLetter = @"D:\";
-
     public static string MakeCloudBackup()
     {
         try
         {
-            if (!Directory.Exists(CloudBackup))
+            if (!Directory.Exists(PathsService.CloudBackup))
             {
                 return "A NUVEM NÃO FOI ENCONTRADA!";
             }
 
-            foreach (var directory in Directory.GetDirectories(BackupDriveLetter))
+            foreach (var directory in Directory.GetDirectories(PathsService.BackupDriveLetter))
             {
                 foreach (var dir in Config.Configs.CloudBackupFolders)
                 {
@@ -29,7 +25,7 @@ public static class CloudBackupService
 
                     var nomePasta = Path.GetFileName(directory);
 
-                    var destination = Path.Combine(CloudBackup, nomePasta);
+                    var destination = Path.Combine(PathsService.CloudBackup, nomePasta);
 
                     var cloudBackup = Process.Start(new ProcessStartInfo
                     {

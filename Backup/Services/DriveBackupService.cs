@@ -5,25 +5,13 @@ namespace Backup.Services;
 
 public static class DriveBackupService
 {
-    private const string BackupDrive = @"D:\Backups\";
-
-    private const string BackupCodes = @"D:\Codigos\";
-
-    private const string BackupDriveLetter = @"D:\";
-
-    private const string DevDrive = @"E:\";
-
-    private static readonly string VideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
-
-    private static readonly string TudoExists = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
-
     public static string MakeDriveBackup()
     {
         try
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            var repositoriesPath = Path.Combine(DevDrive, "Repositories");
+            var repositoriesPath = Path.Combine(PathsService.DevDrive, "Repositories");
 
             var excludedFolders = string.Join(' ', Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\""));
 
@@ -40,7 +28,7 @@ public static class DriveBackupService
                     {
                         FileName = "robocopy",
                         Arguments =
-                            $"\"{directory}\" \"{BackupDrive}{folderName}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
+                            $"\"{directory}\" \"{PathsService.BackupDrive}{folderName}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
                     });
 
                     documentsBackup?.WaitForExit();
@@ -66,7 +54,7 @@ public static class DriveBackupService
                     var repositories = Process.Start(new ProcessStartInfo
                     {
                         FileName = "robocopy",
-                        Arguments = $"\"{directory}\" \"{BackupCodes}{folderName}\" /E /COPY:DAT /R:3 /W:5"
+                        Arguments = $"\"{directory}\" \"{PathsService.BackupCodes}{folderName}\" /E /COPY:DAT /R:3 /W:5"
                     });
 
                     repositories?.WaitForExit();
@@ -77,9 +65,9 @@ public static class DriveBackupService
                     }
                 }
 
-                var publishSource = Path.Combine(DevDrive, "Repositories", "C#");
+                var publishSource = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
 
-                var publishDestination = Path.Combine(BackupCodes, "C#");
+                var publishDestination = Path.Combine(PathsService.BackupCodes, "C#");
 
                 var publishBackup = Process.Start(new ProcessStartInfo
                 {
@@ -90,21 +78,21 @@ public static class DriveBackupService
                 publishBackup?.WaitForExit();
             }
 
-            if (Directory.Exists(TudoExists))
+            if (Directory.Exists(PathsService.TudoExists))
             {
                 var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
 
                 var downloadsBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{downloadsPath}\" \"{BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5"
+                    Arguments = $"\"{downloadsPath}\" \"{PathsService.BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5"
                 });
 
                 downloadsBackup?.WaitForExit();
             }
             else
             {
-                Console.WriteLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {TudoExists}");
+                Console.WriteLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {PathsService.TudoExists}");
             }
 
             var videosExists = DirectoryService.VideosExists();
@@ -117,7 +105,7 @@ public static class DriveBackupService
             var videosBackup = Process.Start(new ProcessStartInfo
             {
                 FileName = "robocopy",
-                Arguments = $"\"{VideosPath}\" \"{BackupDriveLetter}Vídeos gravados\" /E /COPY:DAT /R:3 /W:5"
+                Arguments = $"\"{PathsService.VideosPath}\" \"{PathsService.BackupDriveLetter}Vídeos gravados\" /E /COPY:DAT /R:3 /W:5"
             });
 
             videosBackup?.WaitForExit();

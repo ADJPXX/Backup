@@ -33,9 +33,10 @@ public static class WingetService
     {
         try
         {
-            var option = ConsoleService.ReadString("DIGITE \"S\" PARA SIM E \"N\" PARA NÃO\nO SISTEMA NÃO POSSUI O INSTALADOR, DESEJA INSTALAR PARA QUE SEJA POSSÍVEL INSTALAR OS PACOTES?\nAO ESCOLHER SIM, O DOWNLOAD IRÁ INICIAR PELO SEU NAVEGADOR\nSua escolha: ").ToUpper();
             while (true)
             {
+                var option = ConsoleService.ReadString("DIGITE \"S\" PARA SIM E \"N\" PARA NÃO\nO SISTEMA NÃO POSSUI O INSTALADOR, DESEJA INSTALAR PARA QUE SEJA POSSÍVEL INSTALAR OS PACOTES?\nAO ESCOLHER SIM, O DOWNLOAD IRÁ INICIAR PELO SEU NAVEGADOR\nSua escolha: ").ToUpper();
+
                 switch (option)
                 {
                     case "S" or "SIM":
@@ -53,12 +54,12 @@ public static class WingetService
                             Console.WriteLine($"ERRO AO BAIXAR O INSTALADOR. ERRO {ex.Message}");
                         }
 
-                        break;
+                        return;
                     }
 
                     case "N" or "NAO":
                     {
-                        break;
+                        return;
                     }
 
                     default:
