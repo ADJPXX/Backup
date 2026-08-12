@@ -16,6 +16,12 @@ public static class Program
 
         SchedulerService.CheckTasks();
 
+        PowerPlanService.SetPlan();
+
+        PowerPlanService.SetMonitorTimeout();
+
+        PowerPlanService.SetSleepTimeout();
+
         var devDriveExists = DriveService.DevDriveExists();
 
         if (!devDriveExists.Item1)
