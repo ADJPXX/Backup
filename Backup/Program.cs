@@ -16,6 +16,8 @@ public static class Program
 
         SchedulerService.CheckTasks();
 
+        LanguageLayoutService.DisableLanguageShortcut();
+
         PowerPlanService.SetPlan();
 
         PowerPlanService.SetMonitorTimeout();
