@@ -76,6 +76,18 @@ public static class DriveBackupService
                 });
 
                 publishBackup?.WaitForExit();
+
+                var dotGithubSource = Path.Combine(PathsService.DevDrive, "Repositories", "C#", ".github");
+
+                var dotGithubDestination = Path.Combine(PathsService.BackupCodes, "C#", ".github");
+
+                var dotGithubBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{dotGithubSource}\" \"{dotGithubDestination}\" /COPY:DAT /R:3 /W:5"
+                });
+
+                dotGithubBackup?.WaitForExit();
             }
 
             if (Directory.Exists(PathsService.TudoExists))
