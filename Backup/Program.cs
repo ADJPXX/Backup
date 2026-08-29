@@ -24,13 +24,14 @@ public static class Program
 
         PowerPlanService.SetSleepTimeout();
 
-        var devDriveExists = DriveService.DevDriveExists();
-
-        if (!devDriveExists.Item1)
+        while (true)
         {
-            Console.WriteLine($"\nO programa irá iniciar em 30 SEGUNDOS para que você crie o Dev Drive ({devDriveExists.Item2}).\nCaso contrário poderá dar problema ao fazer backup ou restaurar backup.");
-            Thread.Sleep(30000);
-            Console.Clear();
+            var devDriveExists = DriveService.DevDriveExists();
+
+            if (devDriveExists)
+            {
+                break;
+            }
         }
 
         MenuService.Menu();

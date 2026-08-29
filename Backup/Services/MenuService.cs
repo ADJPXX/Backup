@@ -43,7 +43,7 @@ public static class MenuService
                 {
                     var driveExists = DriveService.DevDriveExists();
 
-                    if (!driveExists.Item1)
+                    if (!driveExists)
                     {
                         break;
                     }

@@ -84,7 +84,7 @@ public static class DriveBackupService
                 var dotGithubBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{dotGithubSource}\" \"{dotGithubDestination}\" /COPY:DAT /R:3 /W:5"
+                    Arguments = $"\"{dotGithubSource}\" \"{dotGithubDestination}\" /E /COPY:DAT /R:3 /W:5"
                 });
 
                 dotGithubBackup?.WaitForExit();
