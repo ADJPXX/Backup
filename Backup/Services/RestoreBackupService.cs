@@ -67,6 +67,25 @@ public static class RestoreBackupService
 
             dotGithubBackup?.WaitForExit();
 
+            var davinciSource = Path.Combine(PathsService.BackupDrive, "DaVinci Resolve", "Blackmagic Design");
+
+            var davinciDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blackmagic Design");
+
+            if (Directory.Exists(davinciSource))
+            {
+                var davinciBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{davinciSource}\" \"{davinciDestination}\" /E /COPY:DAT /R:3 /W:5"
+                });
+
+                davinciBackup?.WaitForExit();
+            }
+            else
+            {
+                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
+            }
+
             var tudoExists = Path.Combine(PathsService.BackupDriveLetter, "TUDO");
 
             if (Directory.Exists(tudoExists))
