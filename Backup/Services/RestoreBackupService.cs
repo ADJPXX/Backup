@@ -86,6 +86,25 @@ public static class RestoreBackupService
                 Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
             }
 
+            var obsSource = Path.Combine(PathsService.BackupDrive, "obs-studio");
+
+            var obsDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
+
+            if (Directory.Exists(obsSource))
+            {
+                var obsBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{obsSource}\" \"{obsDestination}\" /E /COPY:DAT /R:3 /W:5"
+                });
+
+                obsBackup?.WaitForExit();
+            }
+            else
+            {
+                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
+            }
+
             var tudoExists = Path.Combine(PathsService.BackupDriveLetter, "TUDO");
 
             if (Directory.Exists(tudoExists))
