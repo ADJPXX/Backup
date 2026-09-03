@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Backup.Models;
 
 namespace Backup.Services;
 
 public static class RestoreBackupService
 {
-    public static string RestoreBackup()
+    public static StringBuilder RestoreBackup()
     {
+        var log = new StringBuilder();
+        
         try
         {
             var destination = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -83,7 +86,7 @@ public static class RestoreBackupService
             }
             else
             {
-                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
             }
 
             var obsSource = Path.Combine(PathsService.BackupDrive, "obs-studio");
@@ -102,9 +105,28 @@ public static class RestoreBackupService
             }
             else
             {
-                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
             }
+            
+            var duckStationSource = Path.Combine(PathsService.BackupDrive, "DuckStation");
+            
+            var duckStationDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DuckStation");
 
+            if (Directory.Exists(duckStationSource))
+            {
+                var duckStationBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{duckStationSource}\" \"{duckStationDestination}\" /E /COPY:DAT /R:3 /W:5"
+                });
+
+                duckStationBackup?.WaitForExit();
+            }
+            else
+            {
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {duckStationSource}");
+            }
+            
             var tudoExists = Path.Combine(PathsService.BackupDriveLetter, "TUDO");
 
             if (Directory.Exists(tudoExists))
@@ -121,7 +143,7 @@ public static class RestoreBackupService
             }
             else
             {
-                Console.WriteLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {tudoExists}");
+                log.AppendLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {tudoExists}");
             }
 
             if (Directory.Exists(PathsService.VideosGravadosExiste))
@@ -137,14 +159,14 @@ public static class RestoreBackupService
 
             else
             {
-                Console.WriteLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {PathsService.VideosGravadosExiste}");
+                log.AppendLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {PathsService.VideosGravadosExiste}");
             }
 
-            return "TODOS ARQUIVOS RESTAURADOS";
+            return log.AppendLine("TODOS ARQUIVOS RESTAURADOS");
         }
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return log.AppendLine($"ERRO: {ex.Message}");
         }
     }
 }

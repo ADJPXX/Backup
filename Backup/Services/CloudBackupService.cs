@@ -1,17 +1,20 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Backup.Models;
 
 namespace Backup.Services;
 
 public static class CloudBackupService
 {
-    public static string MakeCloudBackup()
+    public static StringBuilder MakeCloudBackup()
     {
+        var log = new StringBuilder();
+        
         try
         {
             if (!Directory.Exists(PathsService.CloudBackup))
             {
-                return "A NUVEM NÃO FOI ENCONTRADA!";
+                return log.AppendLine("A NUVEM NÃO FOI ENCONTRADA!");
             }
 
             foreach (var directory in Directory.GetDirectories(PathsService.BackupDriveLetter))
@@ -37,13 +40,13 @@ public static class CloudBackupService
                 }
             }
 
-            return "BACKUP NA NUVEM CONCLUIDO";
+            return log.AppendLine("BACKUP NA NUVEM CONCLUIDO");
 
         }
 
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return log.AppendLine($"ERRO: {ex.Message}");
         }
     }
 }

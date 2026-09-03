@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Backup.Models;
 
 namespace Backup.Services;
 
 public static class DriveBackupService
 {
-    public static string MakeDriveBackup()
+    public static StringBuilder MakeDriveBackup()
     {
+        var log = new StringBuilder();
+        
         try
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -20,10 +23,29 @@ public static class DriveBackupService
                 foreach (var dir in Config.Configs.BackupFolders)
                 {
                     if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
+                    {
                         continue;
+                    }
 
                     var folderName = Path.GetFileName(directory);
 
+                    if (folderName.Contains("My Games"))
+                    {
+                        var rocketLeagueSource = Path.Combine(documents, "My Games", "Rocket League");
+
+                        var rocketLeagueDestination = Path.Combine(PathsService.BackupDrive, "My Games", "Rocket League");
+                        
+                        var rocketLeagueBackup = Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "robocopy",
+                            Arguments = $"\"{rocketLeagueSource}\" \"{rocketLeagueDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
+                        });
+                        
+                        rocketLeagueBackup?.WaitForExit();
+
+                        continue;
+                    }
+                    
                     var documentsBackup = Process.Start(new ProcessStartInfo
                     {
                         FileName = "robocopy",
@@ -35,16 +57,15 @@ public static class DriveBackupService
 
                     if (documentsBackup is { ExitCode: > 3 })
                     {
-                        Console.WriteLine($"Erro ao copiar: {directory}");
+                        log.AppendLine($"Erro ao copiar: {directory}");
                     }
                 }
             }
 
             if (!Directory.Exists(repositoriesPath))
             {
-                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {repositoriesPath}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {repositoriesPath}");
             }
-
             else
             {
                 foreach (var directory in Directory.GetDirectories(repositoriesPath))
@@ -61,7 +82,7 @@ public static class DriveBackupService
 
                     if (repositories is { ExitCode: > 3 })
                     {
-                        Console.WriteLine($"Erro ao copiar repo: {directory}");
+                        log.AppendLine($"Erro ao copiar repo: {directory}");
                     }
                 }
 
@@ -99,14 +120,14 @@ public static class DriveBackupService
                 var davinciBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{davinciSource}\" \"{davinciDestination}\" /E /COPY:DAT /R:3 /W:5"
+                    Arguments = $"\"{davinciSource}\" \"{davinciDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
                 });
 
                 davinciBackup?.WaitForExit();
             }
             else
             {
-                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
             }
 
             var obsSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
@@ -118,16 +139,35 @@ public static class DriveBackupService
                 var obsBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{obsSource}\" \"{obsDestination}\" /E /COPY:DAT /R:3 /W:5"
+                    Arguments = $"\"{obsSource}\" \"{obsDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
                 });
 
                 obsBackup?.WaitForExit();
             }
             else
             {
-                Console.WriteLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
             }
 
+            var duckStationSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DuckStation");
+
+            var duckStationDestination = Path.Combine(PathsService.BackupDrive, "DuckStation");
+
+            if (Directory.Exists(duckStationSource))
+            {
+                var duckStationBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{duckStationSource}\" \"{duckStationDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
+                });
+
+                duckStationBackup?.WaitForExit();
+            }
+            else
+            {
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {duckStationSource}");
+            }
+            
             if (Directory.Exists(PathsService.TudoExists))
             {
                 var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
@@ -142,14 +182,14 @@ public static class DriveBackupService
             }
             else
             {
-                Console.WriteLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {PathsService.TudoExists}");
+                log.AppendLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {PathsService.TudoExists}");
             }
 
             var videosExists = DirectoryService.VideosExists();
 
             if (!videosExists)
             {
-                return "BACKUP FEITO DE TODOS OS ARQUIVOS";
+                return log.AppendLine("BACKUP CONCLUIDO.");
             }
 
             var videosBackup = Process.Start(new ProcessStartInfo
@@ -160,11 +200,11 @@ public static class DriveBackupService
 
             videosBackup?.WaitForExit();
 
-            return "BACKUP FEITO DE TODOS OS ARQUIVOS";
+            return log.AppendLine("BACKUP CONCLUIDO.");
         }
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return log.AppendLine($"ERRO: {ex.Message}");
         }
     }
 }
