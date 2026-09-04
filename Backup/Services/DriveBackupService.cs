@@ -6,7 +6,7 @@ namespace Backup.Services;
 
 public static class DriveBackupService
 {
-    public static StringBuilder MakeDriveBackup()
+    public static async Task<StringBuilder> MakeDriveBackup()
     {
         var log = new StringBuilder();
         
@@ -34,31 +34,17 @@ public static class DriveBackupService
                         var rocketLeagueSource = Path.Combine(documents, "My Games", "Rocket League");
 
                         var rocketLeagueDestination = Path.Combine(PathsService.BackupDrive, "My Games", "Rocket League");
+
+                        var saida = await RobocopyService.CopyAsync($"\"{rocketLeagueSource}\" \"{rocketLeagueDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5");
                         
-                        var rocketLeagueBackup = Process.Start(new ProcessStartInfo
-                        {
-                            FileName = "robocopy",
-                            Arguments = $"\"{rocketLeagueSource}\" \"{rocketLeagueDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
-                        });
-                        
-                        rocketLeagueBackup?.WaitForExit();
+                        log.AppendLine($"ROCKETLEAGUE = Output: {saida.Item1} - Error: {saida.Item2} - ExitCode: {saida.Item3}");
 
                         continue;
                     }
+
+                    var saida2 = await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.BackupDrive}{folderName}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5");
                     
-                    var documentsBackup = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "robocopy",
-                        Arguments =
-                            $"\"{directory}\" \"{PathsService.BackupDrive}{folderName}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5"
-                    });
-
-                    documentsBackup?.WaitForExit();
-
-                    if (documentsBackup is { ExitCode: > 3 })
-                    {
-                        log.AppendLine($"Erro ao copiar: {directory}");
-                    }
+                    log.AppendLine($"DIRETORIOS = Output: {saida2.Item1} - Error: {saida2.Item2} - ExitCode: {saida2.Item3}");
                 }
             }
 
