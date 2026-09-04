@@ -2,7 +2,7 @@
 
 public static class MenuService
 {
-    public static void Menu()
+    public static async Task MenuAsync()
     {
         while (true)
         {
@@ -17,7 +17,7 @@ public static class MenuService
             {
                 case 1:
                 {
-                    var result = DriveBackupService.MakeDriveBackup();
+                    var result = await DriveBackupService.MakeDriveBackupAsync();
 
                     Console.WriteLine(result);
                     break;
