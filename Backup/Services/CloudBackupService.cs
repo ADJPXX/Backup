@@ -6,7 +6,7 @@ namespace Backup.Services;
 
 public static class CloudBackupService
 {
-    public static StringBuilder MakeCloudBackup()
+    public static async Task<StringBuilder> MakeCloudBackupAsync()
     {
         var log = new StringBuilder();
         
@@ -30,18 +30,11 @@ public static class CloudBackupService
 
                     var destination = Path.Combine(PathsService.CloudBackup, nomePasta);
 
-                    var cloudBackup = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "robocopy",
-                        Arguments = $"\"{directory}\" \"{destination}\" /E /COPY:DAT /R:3 /W:5"
-                    });
-
-                    cloudBackup?.WaitForExit();
+                    await RobocopyService.CopyAsync($"\"{directory}\" \"{destination}\" /E /COPY:DAT /R:3 /W:5");
                 }
             }
 
             return log.AppendLine("BACKUP NA NUVEM CONCLUIDO");
-
         }
 
         catch (Exception ex)

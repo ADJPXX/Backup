@@ -11,8 +11,17 @@ public static class MenuService
             Console.Clear();
 
             if (option == 0)
+            {
                 break;
+            }
 
+            var driveExists = DriveService.DevDriveExists();
+
+            if (!driveExists)
+            {
+                continue;
+            }
+            
             switch (option)
             {
                 case 1:
@@ -25,7 +34,7 @@ public static class MenuService
 
                 case 2:
                 {
-                    var result = CloudBackupService.MakeCloudBackup();
+                    var result = await CloudBackupService.MakeCloudBackupAsync();
 
                     Console.WriteLine(result);
                     break;
@@ -33,7 +42,7 @@ public static class MenuService
 
                 case 3:
                 {
-                    var result = RestoreBackupService.RestoreBackup();
+                    var result = await RestoreBackupService.RestoreBackupAsync();
 
                     Console.WriteLine(result);
                     break;
@@ -41,13 +50,6 @@ public static class MenuService
 
                 case 4:
                 {
-                    var driveExists = DriveService.DevDriveExists();
-
-                    if (!driveExists)
-                    {
-                        break;
-                    }
-
                     var result = DirectoryService.CreateDirectories();
 
                     Console.WriteLine(result);
@@ -65,7 +67,6 @@ public static class MenuService
 
                         Console.WriteLine(result);
                     }
-
                     else
                     {
                         WingetService.InstallWinget();
@@ -84,11 +85,11 @@ public static class MenuService
 
                         Console.WriteLine(result);
                     }
-
                     else
                     {
                         WingetService.InstallWinget();
                     }
+                    
                     break;
                 }
 

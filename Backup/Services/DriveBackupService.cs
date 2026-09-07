@@ -49,6 +49,8 @@ public static class DriveBackupService
                 await RobocopyService.CopyAsync($"\"{PathsService.PublishSource}\" \"{PathsService.PublishDestination}\" publish.txt /COPY:DAT /R:3 /W:5");
                 
                 await RobocopyService.CopyAsync($"\"{PathsService.DotGithubSource}\" \"{PathsService.DotGithubDestination}\" /E /COPY:DAT /R:3 /W:5");
+
+                await RobocopyService.CopyAsync($"\"{PathsService.GitSource}\" \"{PathsService.GitDestination}\" .gitignore /COPY:DAT /R:3 /W:5");
             }
 
             if (Directory.Exists(PathsService.DavinciSource))
@@ -78,13 +80,13 @@ public static class DriveBackupService
                 log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {PathsService.DuckStationSource}");
             }
             
-            if (Directory.Exists(PathsService.TudoExists))
+            if (Directory.Exists(PathsService.TudoInDownloads))
             {
-                await RobocopyService.CopyAsync($"\"{PathsService.TudoExists}\" \"{PathsService.BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5");
+                await RobocopyService.CopyAsync($"\"{PathsService.TudoInDownloads}\" \"{PathsService.BackupDriveLetter}TUDO\" /E /MOVE /R:3 /W:5");
             }
             else
             {
-                log.AppendLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {PathsService.TudoExists}");
+                log.AppendLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {PathsService.TudoInDownloads}");
             }
 
             var videosExists = DirectoryService.VideosExists();
@@ -94,7 +96,7 @@ public static class DriveBackupService
                 return log.AppendLine("BACKUP CONCLUIDO.");
             }
 
-            await RobocopyService.CopyAsync($"\"{PathsService.VideosPath}\" \"{PathsService.BackupDriveLetter}Vídeos gravados\" /E /COPY:DAT /R:3 /W:5");
+            await RobocopyService.CopyAsync($"\"{PathsService.VideosGravadosInVideos}\" \"{PathsService.BackupDriveLetter}Vídeos gravados\" /E /COPY:DAT /R:3 /W:5");
 
             return log.AppendLine("BACKUP CONCLUIDO.");
         }

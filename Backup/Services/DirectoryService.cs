@@ -12,14 +12,14 @@ public static class DirectoryService
 
             var size = "MB";
 
-            var directories = Directory.GetDirectories(PathsService.VideosPath);
+            var directories = Directory.GetDirectories(PathsService.VideosGravadosInVideos);
 
             if (directories.Length <= 0)
             {
                 return false;
             }
 
-            var files = Directory.GetFiles(PathsService.VideosPath, "*", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(PathsService.VideosGravadosInVideos, "*", SearchOption.AllDirectories);
 
             foreach (var file in files)
             {

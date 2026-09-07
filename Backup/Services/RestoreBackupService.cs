@@ -6,14 +6,12 @@ namespace Backup.Services;
 
 public static class RestoreBackupService
 {
-    public static StringBuilder RestoreBackup()
+    public static async Task<StringBuilder> RestoreBackupAsync()
     {
         var log = new StringBuilder();
         
         try
         {
-            var destination = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
             foreach (var directory in Directory.GetDirectories(PathsService.BackupDrive))
             {
                 foreach (var dir in Config.Configs.BackupFolders)
@@ -23,143 +21,59 @@ public static class RestoreBackupService
 
                     var folderName = Path.GetFileName(directory);
 
-                    var startInfo = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "robocopy",
-                        Arguments =
-                            $"\"{directory}\" \"{destination}\\{folderName}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
-                    });
-
-                    startInfo?.WaitForExit();
+                    await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.Documents}\\{folderName}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5");
                 }
             }
 
-            var publishSource = Path.Combine(PathsService.BackupCodes, "C#");
-
-            var publishDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
-
-            var publishBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{publishSource}\" \"{publishDestination}\" publish.txt /COPY:DAT /R:3 /W:5"
-            });
-
-            publishBackup?.WaitForExit();
-
-            var gitSource = Path.Combine(PathsService.BackupCodes, "C#");
-
-            var gitDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
-
-            var gitBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{gitSource}\" \"{gitDestination}\" .gitignore /COPY:DAT /R:3 /W:5"
-            });
-
-            gitBackup?.WaitForExit();
-
-            var dotGithubSource = Path.Combine(PathsService.BackupCodes, "C#", ".github");
-
-            var dotGithubDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#", ".github");
-
-            var dotGithubBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{dotGithubSource}\" \"{dotGithubDestination}\" /E /COPY:DAT /R:3 /W:5"
-            });
-
-            dotGithubBackup?.WaitForExit();
-
-            var davinciSource = Path.Combine(PathsService.BackupDrive, "DaVinci Resolve", "Blackmagic Design");
-
-            var davinciDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blackmagic Design");
-
-            if (Directory.Exists(davinciSource))
-            {
-                var davinciBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{davinciSource}\" \"{davinciDestination}\" /E /COPY:DAT /R:3 /W:5"
-                });
-
-                davinciBackup?.WaitForExit();
-            }
-            else
-            {
-                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
-            }
-
-            var obsSource = Path.Combine(PathsService.BackupDrive, "obs-studio");
-
-            var obsDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
-
-            if (Directory.Exists(obsSource))
-            {
-                var obsBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{obsSource}\" \"{obsDestination}\" /E /COPY:DAT /R:3 /W:5"
-                });
-
-                obsBackup?.WaitForExit();
-            }
-            else
-            {
-                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
-            }
+            await RobocopyService.CopyAsync($"\"{PathsService.PublishDestination}\" \"{PathsService.PublishSource}\" publish.txt /COPY:DAT /R:3 /W:5");
             
-            var duckStationSource = Path.Combine(PathsService.BackupDrive, "DuckStation");
-            
-            var duckStationDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DuckStation");
+            await RobocopyService.CopyAsync($"\"{PathsService.GitDestination}\" \"{PathsService.GitSource}\" .gitignore /COPY:DAT /R:3 /W:5");
 
-            if (Directory.Exists(duckStationSource))
+            await RobocopyService.CopyAsync($"\"{PathsService.DotGithubDestination}\" \"{PathsService.DotGithubSource}\" /E /COPY:DAT /R:3 /W:5");
+
+            if (Directory.Exists(PathsService.DavinciDestination))
             {
-                var duckStationBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{duckStationSource}\" \"{duckStationDestination}\" /E /COPY:DAT /R:3 /W:5"
-                });
-
-                duckStationBackup?.WaitForExit();
+                await RobocopyService.CopyAsync($"\"{PathsService.DavinciDestination}\" \"{PathsService.DavinciSource}\" /E /COPY:DAT /R:3 /W:5");
             }
             else
             {
-                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {duckStationSource}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {PathsService.DavinciDestination}");
             }
-            
-            var tudoExists = Path.Combine(PathsService.BackupDriveLetter, "TUDO");
 
-            if (Directory.Exists(tudoExists))
+            if (Directory.Exists(PathsService.ObsDestination))
             {
-                var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
-
-                var downloadsBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{PathsService.BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
-                });
-
-                downloadsBackup?.WaitForExit();
+                await RobocopyService.CopyAsync($"\"{PathsService.ObsDestination}\" \"{PathsService.ObsSource}\" /E /COPY:DAT /R:3 /W:5");
             }
             else
             {
-                log.AppendLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {tudoExists}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {PathsService.ObsDestination}");
             }
 
-            if (Directory.Exists(PathsService.VideosGravadosExiste))
+            if (Directory.Exists(PathsService.DuckStationDestination))
             {
-                var videosBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{PathsService.BackupDriveLetter}Vídeos gravados\" \"{PathsService.VideosPath}\" /E /MOVE /R:3 /W:5"
-                });
-
-                videosBackup?.WaitForExit();
+                await RobocopyService.CopyAsync($"\"{PathsService.DuckStationDestination}\" \"{PathsService.DuckStationSource}\" /E /COPY:DAT /R:3 /W:5");
             }
-
             else
             {
-                log.AppendLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {PathsService.VideosGravadosExiste}");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {PathsService.DuckStationDestination}");
+            }
+
+            if (Directory.Exists(PathsService.TudoInDrive))
+            {
+                await RobocopyService.CopyAsync($"\"{PathsService.TudoInDrive}\" \"{PathsService.TudoInDownloads}\" /E /MOVE /R:3 /W:5");
+            }
+            else
+            {
+                log.AppendLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {PathsService.TudoInDrive}");
+            }
+
+            if (Directory.Exists(PathsService.VideosGravadosInDrive))
+            {
+                await RobocopyService.CopyAsync($"\"{PathsService.VideosGravadosInDrive}\" \"{PathsService.VideosGravadosInVideos}\" /E /MOVE /R:3 /W:5");
+            }
+            else
+            {
+                log.AppendLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {PathsService.VideosGravadosInDrive}");
             }
 
             return log.AppendLine("TODOS ARQUIVOS RESTAURADOS");

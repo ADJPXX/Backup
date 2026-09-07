@@ -23,16 +23,8 @@ public static class Program
         PowerPlanService.SetMonitorTimeout();
 
         PowerPlanService.SetSleepTimeout();
-
-        while (true)
-        {
-            var devDriveExists = DriveService.DevDriveExists();
-
-            if (devDriveExists)
-            {
-                break;
-            }
-        }
+        
+        DriveService.DevDriveExists();
 
         await MenuService.MenuAsync();
     }
