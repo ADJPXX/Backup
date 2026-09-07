@@ -82,17 +82,13 @@ public static class DirectoryService
     {
         try
         {
-            var basePath = Path.Combine(PathsService.DevDrive, "Repositories");
+            Directory.CreateDirectory(PathsService.VideosGravadosInVideos);
 
-            var recordedVideosPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
-
-            Directory.CreateDirectory(recordedVideosPath);
-
-            Directory.CreateDirectory(basePath);
+            Directory.CreateDirectory(PathsService.RepositoriesPath);
 
             foreach (var directory in Config.Configs.FoldersToCreate)
             {
-                Directory.CreateDirectory(Path.Combine(basePath, directory));
+                Directory.CreateDirectory(Path.Combine(PathsService.RepositoriesPath, directory));
             }
 
             return "TODAS AS PASTAS FORAM CRIADAS";

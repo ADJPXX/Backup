@@ -6,7 +6,7 @@ public static class DriveService
 {
     public static bool DevDriveExists()
     {
-        var driveExiste = DriveInfo.GetDrives().Any(drive => drive.Name.Equals("F:\\", StringComparison.OrdinalIgnoreCase));
+        var driveExiste = DriveInfo.GetDrives().Any(drive => drive.Name.Equals(PathsService.DevDrive, StringComparison.OrdinalIgnoreCase));
 
         if (driveExiste)
         {

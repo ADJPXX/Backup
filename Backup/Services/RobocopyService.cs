@@ -11,12 +11,21 @@ public static class RobocopyService
             FileName = "robocopy",
             Arguments = arguments,
             UseShellExecute = false,
+            //RedirectStandardOutput = true,
             RedirectStandardError = true
         });
 
-        var error = await backup?.StandardError.ReadToEndAsync()!;
+        //var error = await backup?.StandardError.ReadToEndAsync()!;
         
-        await backup.WaitForExitAsync();
+        //await backup.WaitForExitAsync();
+        
+        //var outputTask = backup?.StandardOutput.ReadToEndAsync();
+        var errorTask = backup?.StandardError.ReadToEndAsync();
+
+        await backup?.WaitForExitAsync()!;
+
+        //var output = await outputTask!;
+        var error = await errorTask!;
         
         return(error, backup.ExitCode);
     }

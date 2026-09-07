@@ -6,9 +6,9 @@ public static class PathsService
 {
     public const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
 
-    public const string BackupDriveLetter = @"D:\";
-
     public const string DevDrive = @"E:\";
+    
+    public const string BackupDriveLetter = @"D:\";
 
     public const string BackupDrive = @"D:\Backups\";
 
@@ -17,6 +17,10 @@ public static class PathsService
     public static readonly string ExcludedFolders = string.Join(' ', Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\""));
     
     public static readonly string Documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+    public static readonly string CSharpDevDrive = Path.Combine(DevDrive, "Repositories", "C#");
+    
+    public static readonly string CSharpBackup = Path.Combine(BackupCodes, "C#");
     
     public static readonly string RepositoriesPath = Path.Combine(DevDrive, "Repositories");
     
@@ -24,17 +28,9 @@ public static class PathsService
     
     public static readonly string RocketLeagueDestination = Path.Combine(BackupDrive, "My Games", "Rocket League");
     
-    public static readonly string PublishSource = Path.Combine(DevDrive, "Repositories", "C#");
+    public static readonly string DotGithubSource = Path.Combine(CSharpDevDrive, ".github");
 
-    public static readonly string PublishDestination = Path.Combine(BackupCodes, "C#");
-    
-    public static readonly string GitSource = Path.Combine(BackupCodes, "C#");
-
-    public static readonly string GitDestination = Path.Combine(DevDrive, "Repositories", "C#");
-    
-    public static readonly string DotGithubSource = Path.Combine(DevDrive, "Repositories", "C#", ".github");
-
-    public static readonly string DotGithubDestination = Path.Combine(BackupCodes, "C#", ".github");
+    public static readonly string DotGithubDestination = Path.Combine(CSharpBackup, ".github");
     
     public static readonly string DavinciSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blackmagic Design");
 

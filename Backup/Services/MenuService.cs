@@ -64,7 +64,6 @@ public static class MenuService
                     {
                         var result = WingetService.InstallPackages();
 
-
                         Console.WriteLine(result);
                     }
                     else
