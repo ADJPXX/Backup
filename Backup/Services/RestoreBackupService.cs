@@ -1,172 +1,395 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using Backup.Models;
 
 namespace Backup.Services;
 
 public static class RestoreBackupService
 {
-    public static StringBuilder RestoreBackup()
+    public static async Task<StringBuilder> RestoreBackupAsync()
     {
         var log = new StringBuilder();
         
         try
         {
-            var destination = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-            foreach (var directory in Directory.GetDirectories(PathsService.BackupDrive))
-            {
-                foreach (var dir in Config.Configs.BackupFolders)
-                {
-                    if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    var folderName = Path.GetFileName(directory);
-
-                    var startInfo = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "robocopy",
-                        Arguments =
-                            $"\"{directory}\" \"{destination}\\{folderName}\" /E /COPY:DAT /XD logs log replay replays cache caches /R:3 /W:5"
-                    });
-
-                    startInfo?.WaitForExit();
-                }
-            }
-
-            var publishSource = Path.Combine(PathsService.BackupCodes, "C#");
-
-            var publishDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
-
-            var publishBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{publishSource}\" \"{publishDestination}\" publish.txt /COPY:DAT /R:3 /W:5"
-            });
-
-            publishBackup?.WaitForExit();
-
-            var gitSource = Path.Combine(PathsService.BackupCodes, "C#");
-
-            var gitDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#");
-
-            var gitBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{gitSource}\" \"{gitDestination}\" .gitignore /COPY:DAT /R:3 /W:5"
-            });
-
-            gitBackup?.WaitForExit();
-
-            var dotGithubSource = Path.Combine(PathsService.BackupCodes, "C#", ".github");
-
-            var dotGithubDestination = Path.Combine(PathsService.DevDrive, "Repositories", "C#", ".github");
-
-            var dotGithubBackup = Process.Start(new ProcessStartInfo
-            {
-                FileName = "robocopy",
-                Arguments = $"\"{dotGithubSource}\" \"{dotGithubDestination}\" /E /COPY:DAT /R:3 /W:5"
-            });
-
-            dotGithubBackup?.WaitForExit();
-
-            var davinciSource = Path.Combine(PathsService.BackupDrive, "DaVinci Resolve", "Blackmagic Design");
-
-            var davinciDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blackmagic Design");
-
-            if (Directory.Exists(davinciSource))
-            {
-                var davinciBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{davinciSource}\" \"{davinciDestination}\" /E /COPY:DAT /R:3 /W:5"
-                });
-
-                davinciBackup?.WaitForExit();
-            }
-            else
-            {
-                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
-            }
-
-            var obsSource = Path.Combine(PathsService.BackupDrive, "obs-studio");
-
-            var obsDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
-
-            if (Directory.Exists(obsSource))
-            {
-                var obsBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{obsSource}\" \"{obsDestination}\" /E /COPY:DAT /R:3 /W:5"
-                });
-
-                obsBackup?.WaitForExit();
-            }
-            else
-            {
-                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
-            }
+            LogService.StartExecution("RESTAURAR");
             
-            var duckStationSource = Path.Combine(PathsService.BackupDrive, "DuckStation");
+            await DocumentsBackupAsync(log);
             
-            var duckStationDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DuckStation");
+            await RepositoriesBackupAsync(log);
 
-            if (Directory.Exists(duckStationSource))
-            {
-                var duckStationBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{duckStationSource}\" \"{duckStationDestination}\" /E /COPY:DAT /R:3 /W:5"
-                });
+            await DaVinciBackupAsync(log);
 
-                duckStationBackup?.WaitForExit();
-            }
-            else
-            {
-                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {duckStationSource}");
-            }
+            await ObsBackupAsync(log);
+
+            await DuckStationBackupAsync(log);
             
-            var tudoExists = Path.Combine(PathsService.BackupDriveLetter, "TUDO");
+            await CsBackupAsync(log);
 
-            if (Directory.Exists(tudoExists))
-            {
-                var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+            await TarkovBackupAsync(log);
 
-                var downloadsBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{PathsService.BackupDriveLetter}TUDO\" \"{downloadsPath}\" /E /MOVE /R:3 /W:5"
-                });
+            await TudoBackupAsync(log);
 
-                downloadsBackup?.WaitForExit();
-            }
-            else
-            {
-                log.AppendLine($"NÃO CONTEM PASTA \"TUDO\" NO SEGUINTE CAMINHO: {tudoExists}");
-            }
+            await VideosBackupAsync(log);
 
-            if (Directory.Exists(PathsService.VideosGravadosExiste))
-            {
-                var videosBackup = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "robocopy",
-                    Arguments = $"\"{PathsService.BackupDriveLetter}Vídeos gravados\" \"{PathsService.VideosPath}\" /E /MOVE /R:3 /W:5"
-                });
-
-                videosBackup?.WaitForExit();
-            }
-
-            else
-            {
-                log.AppendLine($"NÃO CONTEM PASTA \"Vídeos gravados\" NO SEGUINTE CAMINHO: {PathsService.VideosGravadosExiste}");
-            }
-
-            return log.AppendLine("TODOS ARQUIVOS RESTAURADOS");
+            log.AppendLine("RESTAURAÇÃO DE BACKUP CONCLUIDA");
+            
+            LogService.AddLog("RESTAURAÇÃO DE BACKUP CONCLUIDA");
+            
+            LogService.EndExecution();
+            
+            return log;
         }
         catch (Exception ex)
         {
-            return log.AppendLine($"ERRO: {ex.Message}");
+            return log.AppendLine($"ERRO NA FUNÇÃO \"RestoreBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task DocumentsBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            foreach (var folderName in Config.Configs.BackupFolders)
+            {
+                var directory = Path.Combine(PathsService.BackupDrive, folderName);
+
+                if (!Directory.Exists(directory))
+                {
+                    LogService.AddLog($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.BackupDrive}\"");
+                    
+                    log.AppendLine($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.BackupDrive}\"");
+                    
+                    continue;
+                }
+
+                var backupFoldersStatus = await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.Documents}\\{folderName}\" /E /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($"{folderName} STATUS: {backupFoldersStatus.Item1}");
+                
+                log.AppendLine($"{folderName} STATUS: {backupFoldersStatus.Item1}");
+
+                if (string.IsNullOrEmpty(backupFoldersStatus.Item2))
+                {
+                    continue;
+                }
+                
+                LogService.AddLog($"{folderName} ERRO: {backupFoldersStatus.Item2}");
+                
+                log.AppendLine($"{folderName} ERRO: {backupFoldersStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"DocumentsBackupAsync()\": {ex.Message}");
+        }
+    }
+    
+    
+    private static async Task RepositoriesBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (File.Exists(Path.Combine(PathsService.CSharpBackup, "publish.txt")))
+            {
+                var publishStatus = await RobocopyService.CopyAsync($"\"{PathsService.CSharpBackup}\" \"{PathsService.CSharpDevDrive}\" publish.txt /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($"publish.txt STATUS: {publishStatus.Item1}");
+                    
+                log.AppendLine($"publish.txt STATUS: {publishStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(publishStatus.Item2))
+                {
+                    LogService.AddLog($"publish.txt ERRO: {publishStatus.Item2}");
+                    
+                    log.AppendLine($"publish.txt ERRO: {publishStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"O ARQUIVO \"publish.txt\" NÃO FOI ENCONTRADO NO CAMINHO: \"{PathsService.CSharpBackup}\"");
+                
+                log.AppendLine($"O ARQUIVO \"publish.txt\" NÃO FOI ENCONTRADO NO CAMINHO: \"{PathsService.CSharpBackup}\"");
+            }
+
+            if (File.Exists(Path.Combine(PathsService.CSharpBackup, ".gitignore")))
+            {
+                var gitignoreStatus = await RobocopyService.CopyAsync($"\"{PathsService.CSharpBackup}\" \"{PathsService.CSharpDevDrive}\" .gitignore /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($".gitignore STATUS: {gitignoreStatus.Item1}");
+                    
+                log.AppendLine($".gitignore STATUS: {gitignoreStatus.Item1}");
+                
+                if (!string.IsNullOrEmpty(gitignoreStatus.Item2))
+                {
+                    LogService.AddLog($".gitignore ERRO: {gitignoreStatus.Item2}");
+                    
+                    log.AppendLine($".gitignore ERRO: {gitignoreStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"O ARQUIVO \".gitignore\" NÃO FOI ENCONTRADO NO CAMINHO: \"{PathsService.CSharpBackup}\"");
+                
+                log.AppendLine($"O ARQUIVO \".gitignore\" NÃO FOI ENCONTRADO NO CAMINHO: \"{PathsService.CSharpBackup}\"");
+            }
+
+            if (Directory.Exists(PathsService.DotGithubDestination))
+            {
+                var dotGitStatus = await RobocopyService.CopyAsync($"\"{PathsService.DotGithubDestination}\" \"{PathsService.DotGithubSource}\" /E /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($".github STATUS: {dotGitStatus.Item1}");
+                    
+                log.AppendLine($".github STATUS: {dotGitStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(dotGitStatus.Item2))
+                {
+                    LogService.AddLog($".github ERRO: {dotGitStatus.Item2}");
+                    
+                    log.AppendLine($".github ERRO: {dotGitStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \".github\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.DotGithubDestination}\"");
+                
+                log.AppendLine($"A PASTA \".github\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.DotGithubDestination}\"");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"RepositoriesBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task DaVinciBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.DavinciDestination))
+            {
+                var daVinciStatus = await RobocopyService.CopyAsync($"\"{PathsService.DavinciDestination}\" \"{PathsService.DavinciSource}\" /E /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($"DaVinci Resolve STATUS: {daVinciStatus.Item1}");
+                    
+                log.AppendLine($"DaVinci Resolve STATUS: {daVinciStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(daVinciStatus.Item2))
+                {
+                    LogService.AddLog($"Blackmagic Design ERRO: {daVinciStatus.Item2}");
+                    
+                    log.AppendLine($"Blackmagic Design ERRO: {daVinciStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"Blackmagic Design\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.DavinciDestination}\"");
+                
+                log.AppendLine($"A PASTA \"Blackmagic Design\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.DavinciDestination}\"");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"DaVinciBackupAsync()\": {ex.Message}");
+        }
+    }
+    
+    
+    private static async Task ObsBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.ObsDestination))
+            {
+                var obsStatus = await RobocopyService.CopyAsync($"\"{PathsService.ObsDestination}\" \"{PathsService.ObsSource}\" /E /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($"obs-studio STATUS: {obsStatus.Item1}");
+                    
+                log.AppendLine($"obs-studio STATUS: {obsStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(obsStatus.Item2))
+                {
+                    LogService.AddLog($"obs-studio ERRO: {obsStatus.Item2}");
+                    
+                    log.AppendLine($"obs-studio ERRO: {obsStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"obs-studio\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.ObsDestination}\"");
+                
+                log.AppendLine($"A PASTA \"obs-studio\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.ObsDestination}\"");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"ObsBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task DuckStationBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.DuckStationDestination))
+            {
+                var duckStationStatus = await RobocopyService.CopyAsync($"\"{PathsService.DuckStationDestination}\" \"{PathsService.DuckStationSource}\" /E /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($"DuckStation STATUS: {duckStationStatus.Item1}");
+                    
+                log.AppendLine($"DuckStation STATUS: {duckStationStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(duckStationStatus.Item2))
+                {
+                    LogService.AddLog($"DuckStation ERRO: {duckStationStatus.Item2}");
+                    
+                    log.AppendLine($"DuckStation ERRO: {duckStationStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"DuckStation\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.DuckStationDestination}\"");
+                
+                log.AppendLine($"A PASTA \"DuckStation\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.DuckStationDestination}\"");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"DuckStationBackupAsync()\": {ex.Message}");
+        }
+    }
+    
+    
+    private static async Task CsBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.CsInD))
+            {
+                LogService.AddLog($"A PASTA \"cfg\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.CsInD}");
+                
+                log.AppendLine($"A PASTA \"cfg\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.CsInD}");
+
+                return;
+            }
+            
+            var csCfgStatus = await RobocopyService.CopyAsync($"\"{PathsService.CsInD}\" \"{PathsService.CsInC}\" *.cfg /COPY:DAT /R:3 /W:5");
+            
+            LogService.AddLog($"Cs cfg STATUS: {csCfgStatus.Item1}");
+                    
+            log.AppendLine($"Cs cfg STATUS: {csCfgStatus.Item1}");
+            
+            if (!string.IsNullOrEmpty(csCfgStatus.Item2))
+            {
+                LogService.AddLog($"Cs cfg ERRO: {csCfgStatus.Item2}");
+                    
+                log.AppendLine($"Cs cfg ERRO: {csCfgStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"CSBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task TarkovBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.TarkovInD))
+            {
+                LogService.AddLog($"A PASTA \"Settings\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TarkovInD}");
+                
+                log.AppendLine($"A PASTA \"Settings\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TarkovInD}");
+
+                return;
+            }
+            
+            var tarkovStatus = await RobocopyService.CopyAsync($"\"{PathsService.TarkovInD}\" \"{PathsService.TarkovInC}\" *.ini /COPY:DAT /R:3 /W:5");
+            
+            LogService.AddLog($"Tarkov STATUS: {tarkovStatus.Item1}");
+                    
+            log.AppendLine($"Tarkov STATUS: {tarkovStatus.Item1}");
+            
+            if (!string.IsNullOrEmpty(tarkovStatus.Item2))
+            {
+                LogService.AddLog($"Tarkov ERRO: {tarkovStatus.Item2}");
+                    
+                log.AppendLine($"Tarkov ERRO: {tarkovStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"TarkovBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task TudoBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.TudoInDrive))
+            {
+                var tudoStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoInDrive}\" \"{PathsService.TudoInDownloads}\" /E /MOVE /R:3 /W:5");
+                
+                LogService.AddLog($"TUDO STATUS: {tudoStatus.Item1}");
+                    
+                log.AppendLine($"TUDO STATUS: {tudoStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(tudoStatus.Item2))
+                {
+                    LogService.AddLog($"TUDO ERRO: {tudoStatus.Item2}");
+                    
+                    log.AppendLine($"TUDO ERRO: {tudoStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoInDrive}");
+                
+                log.AppendLine($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoInDrive}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"TudoBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task VideosBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.VideosGravadosInDrive))
+            {
+                var videosStatus = await RobocopyService.CopyAsync($"\"{PathsService.VideosGravadosInDrive}\" \"{PathsService.VideosGravadosInVideos}\" /E /MOVE /R:3 /W:5");
+                
+                LogService.AddLog($"Vídeos Gravados STATUS: {videosStatus.Item1}");
+                    
+                log.AppendLine($"Vídeos Gravados STATUS: {videosStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(videosStatus.Item2))
+                {
+                    LogService.AddLog($"Vídeos Gravados ERRO: {videosStatus.Item2}");
+                    
+                    log.AppendLine($"Vídeos Gravados ERRO: {videosStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"Vídeos gravados\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.VideosGravadosInDrive}");
+                
+                log.AppendLine($"A PASTA \"Vídeos gravados\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.VideosGravadosInDrive}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"VideosBackupAsync()\": {ex.Message}");
         }
     }
 }

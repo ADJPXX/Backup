@@ -21,9 +21,9 @@ public static class WingetService
 
             return startInfo?.ExitCode == 0;
         }
-
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"ERRO NA FUNÇÃO \"WingetExists()\": {ex.Message}");
             return false;
         }
     }
@@ -71,10 +71,9 @@ public static class WingetService
                 }
             }
         }
-
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            Console.WriteLine($"ERRO NA FUNÇÃO \"InstallWinget()\": {ex.Message}");
         }
     }
 
@@ -106,7 +105,7 @@ public static class WingetService
         }
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return $"ERRO NA FUNÇÃO \"InstallPackages()\": {ex.Message}";
         }
     }
 
@@ -127,7 +126,7 @@ public static class WingetService
         }
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return $"ERRO NA FUNÇÃO \"UpgradePackages()\": {ex.Message}";
         }
     }
 }

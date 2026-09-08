@@ -7,32 +7,38 @@ public static class SchedulerService
 {
     public static void CheckTasks()
     {
-        List<TaskConfig> nonExistentTasks = [];
-        
-        foreach (var task in Config.Configs.Tasks)
+        try
         {
-            if (!TaskExists(task.Name))
-            {
-                nonExistentTasks.Add(task);
-            }
-        }
-        
-        if (nonExistentTasks.Count == 0)
-        {
-            return;
-        }
+            List<TaskConfig> nonExistentTasks = [];
 
-        foreach (var task in nonExistentTasks)
-        {
-            try
+            foreach (var task in Config.Configs.Tasks)
             {
-                CreateTask(task);
+                if (!TaskExists(task.Name))
+                {
+                    nonExistentTasks.Add(task);
+                }
             }
 
-            catch (Exception ex)
+            if (nonExistentTasks.Count == 0)
             {
-                Console.WriteLine($"Não foi possivel criar a tarefa {task.Name}. Erro: {ex.Message}");
+                return;
             }
+
+            foreach (var task in nonExistentTasks)
+            {
+                try
+                {
+                    CreateTask(task);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Não foi possivel criar a tarefa {task.Name}. Erro: {ex.Message}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERRO NA FUNÇÃO \"CheckTasks()\": {ex.Message}");
         }
     }
 
@@ -47,52 +53,54 @@ public static class SchedulerService
 
     private static void CreateTask(TaskConfig task)
     {
-        using TaskService taskService = new();
-
-        var td = taskService.NewTask();
-
-        // Informações
-        td.RegistrationInfo.Author = Environment.UserName;
-        td.RegistrationInfo.Description = task.Name;
-
-        // Executar com privilégios mais altos
-        td.Principal.RunLevel = TaskRunLevel.Highest;
-
-        // Configurações
-        td.Settings.MultipleInstances = TaskInstancesPolicy.IgnoreNew;
-        td.Settings.AllowDemandStart = true;
-        td.Settings.Enabled = true;
-        td.Settings.Hidden = false;
-        td.Settings.StartWhenAvailable = false;
-        td.Settings.RunOnlyIfIdle = false;
-        td.Settings.RunOnlyIfNetworkAvailable = false;
-        td.Settings.DisallowStartIfOnBatteries = false;
-        td.Settings.StopIfGoingOnBatteries = false;
-        td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
-
-        if (task.Delay < 5)
+        try
         {
-            task.Delay = 5;
+            using TaskService taskService = new();
+
+            var td = taskService.NewTask();
+
+            // Informações
+            td.RegistrationInfo.Author = Environment.UserName;
+            td.RegistrationInfo.Description = task.Name;
+
+            // Executar com privilégios mais altos
+            td.Principal.RunLevel = TaskRunLevel.Highest;
+
+            // Configurações
+            td.Settings.MultipleInstances = TaskInstancesPolicy.IgnoreNew;
+            td.Settings.AllowDemandStart = true;
+            td.Settings.Enabled = true;
+            td.Settings.Hidden = false;
+            td.Settings.StartWhenAvailable = false;
+            td.Settings.RunOnlyIfIdle = false;
+            td.Settings.RunOnlyIfNetworkAvailable = false;
+            td.Settings.DisallowStartIfOnBatteries = false;
+            td.Settings.StopIfGoingOnBatteries = false;
+            td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
+
+            if (task.Delay < 5)
+            {
+                task.Delay = 5;
+            }
+
+            // Trigger
+            var trigger = new LogonTrigger
+            {
+                Delay = TimeSpan.FromSeconds(task.Delay)
+            };
+
+            td.Triggers.Add(trigger);
+
+            // Executável
+            td.Actions.Add(new ExecAction(task.ExecutablePath));
+
+            // Registrar tarefa
+            taskService.RootFolder.RegisterTaskDefinition(task.Name, td, TaskCreation.CreateOrUpdate, null, null,
+                TaskLogonType.InteractiveToken);
         }
-
-        // Trigger
-        var trigger = new LogonTrigger
+        catch (Exception ex)
         {
-            Delay = TimeSpan.FromSeconds(task.Delay)
-        };
-
-        td.Triggers.Add(trigger);
-
-        // Executável
-        td.Actions.Add(new ExecAction(task.ExecutablePath));
-
-        // Registrar tarefa
-        taskService.RootFolder.RegisterTaskDefinition(
-            task.Name,
-            td,
-            TaskCreation.CreateOrUpdate,
-            null,
-            null,
-            TaskLogonType.InteractiveToken);
+            Console.WriteLine($"ERRO NA FUNÇÃO \"CreateTask()\": {ex.Message}");
+        }
     }
 }
