@@ -24,6 +24,14 @@ public static class PathsService
     
     public static readonly string Documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+    public static readonly string CsInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", "Counter-Strike Global Offensive", "game", "csgo", "cfg");
+
+    public static readonly string CsInD = Path.Combine(BackupDrive, "CS", "CFGS");
+
+    public static readonly string TarkovInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Battlestate Games", "Escape from Tarkov", "Settings");
+
+    public static readonly string TarkovInD = Path.Combine(BackupDrive, "Tarkov");
+    
     public static readonly string CSharpDevDrive = Path.Combine(DevDrive, "Repositories", "C#");
     
     public static readonly string CSharpBackup = Path.Combine(BackupCodes, "C#");

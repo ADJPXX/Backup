@@ -22,6 +22,10 @@ public static class RestoreBackupService
             await ObsBackupAsync(log);
 
             await DuckStationBackupAsync(log);
+            
+            await CsBackupAsync(log);
+
+            await TarkovBackupAsync(log);
 
             await TudoBackupAsync(log);
 
@@ -254,6 +258,72 @@ public static class RestoreBackupService
         catch (Exception ex)
         {
             log.AppendLine($"ERRO NA FUNÇÃO \"DuckStationBackupAsync()\": {ex.Message}");
+        }
+    }
+    
+    
+    private static async Task CsBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.CsInD))
+            {
+                LogService.AddLog($"A PASTA \"cfg\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.CsInD}");
+                
+                log.AppendLine($"A PASTA \"cfg\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.CsInD}");
+
+                return;
+            }
+            
+            var csCfgStatus = await RobocopyService.CopyAsync($"\"{PathsService.CsInD}\" \"{PathsService.CsInC}\" *.cfg /COPY:DAT /R:3 /W:5");
+            
+            LogService.AddLog($"Cs cfg STATUS: {csCfgStatus.Item1}");
+                    
+            log.AppendLine($"Cs cfg STATUS: {csCfgStatus.Item1}");
+            
+            if (!string.IsNullOrEmpty(csCfgStatus.Item2))
+            {
+                LogService.AddLog($"Cs cfg ERRO: {csCfgStatus.Item2}");
+                    
+                log.AppendLine($"Cs cfg ERRO: {csCfgStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"CSBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task TarkovBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.TarkovInD))
+            {
+                LogService.AddLog($"A PASTA \"Settings\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TarkovInD}");
+                
+                log.AppendLine($"A PASTA \"Settings\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TarkovInD}");
+
+                return;
+            }
+            
+            var tarkovStatus = await RobocopyService.CopyAsync($"\"{PathsService.TarkovInD}\" \"{PathsService.TarkovInC}\" *.ini /COPY:DAT /R:3 /W:5");
+            
+            LogService.AddLog($"Tarkov STATUS: {tarkovStatus.Item1}");
+                    
+            log.AppendLine($"Tarkov STATUS: {tarkovStatus.Item1}");
+            
+            if (!string.IsNullOrEmpty(tarkovStatus.Item2))
+            {
+                LogService.AddLog($"Tarkov ERRO: {tarkovStatus.Item2}");
+                    
+                log.AppendLine($"Tarkov ERRO: {tarkovStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"TarkovBackupAsync()\": {ex.Message}");
         }
     }
 
