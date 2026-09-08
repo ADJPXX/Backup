@@ -52,9 +52,9 @@ public static class DriveBackupService
 
                 if (!Directory.Exists(directory))
                 {
-                    log.AppendLine($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO \"{PathsService.Documents}\"");
-                    
                     LogService.AddLog($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO \"{PathsService.Documents}\"");
+                    
+                    log.AppendLine($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO \"{PathsService.Documents}\"");
 
                     continue;
                 }
@@ -63,15 +63,15 @@ public static class DriveBackupService
                 {
                     var rocketLeagueStatus = await RobocopyService.CopyAsync($"\"{PathsService.RocketLeagueSource}\" \"{PathsService.RocketLeagueDestination}\" /E /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
 
-                    log.AppendLine($"Rocket League STATUS: {rocketLeagueStatus.Item1}");
-                    
                     LogService.AddLog($"Rocket League STATUS: {rocketLeagueStatus.Item1}");
+                    
+                    log.AppendLine($"Rocket League STATUS: {rocketLeagueStatus.Item1}");
 
                     if (!string.IsNullOrEmpty(rocketLeagueStatus.Item2))
                     {
-                        log.AppendLine($"Rocket League ERRO: {rocketLeagueStatus.Item1}");
-                        
                         LogService.AddLog($"Rocket League ERRO: {rocketLeagueStatus.Item2}");
+                        
+                        log.AppendLine($"Rocket League ERRO: {rocketLeagueStatus.Item2}");
                     }
                     
                     continue;
@@ -88,7 +88,7 @@ public static class DriveBackupService
                     continue;
                 }
                 
-                LogService.AddLog($"Backup Folders ERRO: {backupFoldersStatus.Item2}");
+                LogService.AddLog($"{folderName} ERRO: {backupFoldersStatus.Item2}");
                 
                 log.AppendLine($"{folderName} ERRO: {backupFoldersStatus.Item2}");
             }

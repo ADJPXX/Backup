@@ -11,24 +11,47 @@ public static class CloudBackupService
         
         try
         {
+            LogService.StartExecution("CLOUD BACKUP");
+            
             if (!Directory.Exists(PathsService.CloudBackup))
             {
+                LogService.AddLog("A NUVEM NÃO FOI ENCONTRADA!");
+                
                 return log.AppendLine("A NUVEM NÃO FOI ENCONTRADA!");
             }
             
             foreach (var folderName in Config.Configs.CloudBackupFolders)
             {
-                var directory = Path.Combine(PathsService.BackupDrive, folderName);
-
+                var directory = Path.Combine(PathsService.BackupDriveLetter, folderName);
+                
                 if (!Directory.Exists(directory))
                 {
-                    log.AppendLine($"A PASTA {folderName} NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.BackupDrive}");
+                    LogService.AddLog($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO: {directory}");
+                    
+                    log.AppendLine($"A PASTA \"{folderName}\" NÃO FOI ENCONTRADA NO CAMINHO: {directory}");
                     
                     continue;
                 }
+                
+                var cloudStatus = await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.CloudBackup}\\{folderName}\" /E /COPY:DAT /R:3 /W:5");
+                
+                LogService.AddLog($"{folderName} STATUS: {cloudStatus.Item1}");
+                
+                log.AppendLine($"{folderName} STATUS: {cloudStatus.Item1}");
 
-                await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.CloudBackup}\\{folderName}\" /E /COPY:DAT /R:3 /W:5");
+                if (string.IsNullOrEmpty(cloudStatus.Item2))
+                {
+                    continue;
+                }
+                
+                LogService.AddLog($"{folderName} ERRO: {cloudStatus.Item2}");
+                
+                log.AppendLine($"{folderName} ERRO: {cloudStatus.Item2}");
             }
+            
+            LogService.AddLog("BACKUP NA NUVEM CONCLUIDO");
+            
+            LogService.EndExecution();
             
             return log.AppendLine("BACKUP NA NUVEM CONCLUIDO");
         }
