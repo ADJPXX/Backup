@@ -8,7 +8,7 @@ public static class PathsService
 
     public const string DevDrive = @"E:\";
     
-    public const string BackupDriveLetter = @"D:\";
+    private const string BackupDriveLetter = @"D:\";
 
     public const string BackupDrive = @"D:\Backups\";
 

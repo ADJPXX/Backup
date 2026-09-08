@@ -16,30 +16,26 @@ public static class CloudBackupService
             {
                 return log.AppendLine("A NUVEM NÃO FOI ENCONTRADA!");
             }
-
-            foreach (var directory in Directory.GetDirectories(PathsService.BackupDriveLetter))
+            
+            foreach (var folderName in Config.Configs.CloudBackupFolders)
             {
-                foreach (var dir in Config.Configs.CloudBackupFolders)
+                var directory = Path.Combine(PathsService.BackupDrive, folderName);
+
+                if (!Directory.Exists(directory))
                 {
-                    if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    var nomePasta = Path.GetFileName(directory);
-
-                    var destination = Path.Combine(PathsService.CloudBackup, nomePasta);
-
-                    await RobocopyService.CopyAsync($"\"{directory}\" \"{destination}\" /E /COPY:DAT /R:3 /W:5");
+                    log.AppendLine($"A PASTA {folderName} NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.BackupDrive}");
+                    
+                    continue;
                 }
-            }
 
+                await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.CloudBackup}\\{folderName}\" /E /COPY:DAT /R:3 /W:5");
+            }
+            
             return log.AppendLine("BACKUP NA NUVEM CONCLUIDO");
         }
-
         catch (Exception ex)
         {
-            return log.AppendLine($"ERRO: {ex.Message}");
+            return log.AppendLine($"ERRO NA FUNÇÃO \"MakeCloudBackupAsync()\": {ex.Message}");
         }
     }
 }

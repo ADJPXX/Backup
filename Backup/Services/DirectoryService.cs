@@ -4,7 +4,7 @@ namespace Backup.Services;
 
 public static class DirectoryService
 {
-    public static bool VideosExists()
+    public static (bool, bool) VideosExists()
     {
         try
         {
@@ -16,7 +16,7 @@ public static class DirectoryService
 
             if (directories.Length <= 0)
             {
-                return false;
+                return (false, false);
             }
 
             var files = Directory.GetFiles(PathsService.VideosGravadosInVideos, "*", SearchOption.AllDirectories);
@@ -34,7 +34,7 @@ public static class DirectoryService
             {
                 case 0d:
                 {
-                    return false;
+                    return (false, false);
                 }
                 case >= 1024d:
                 {
@@ -53,12 +53,14 @@ public static class DirectoryService
                 {
                     case "S":
                     {
-                        return true;
+                        return (true, false);
                     }
 
                     case "N":
                     {
-                        return false;
+                        const bool yesNo = true;
+                        
+                        return (false, yesNo);
                     }
 
                     default:
@@ -72,8 +74,8 @@ public static class DirectoryService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro: {ex.Message}");
-            return false;
+            Console.WriteLine($"ERRO NA FUNÇÃO \"VideosExists()\": {ex.Message}");
+            return (false, false);
         }
     }
 
@@ -95,7 +97,7 @@ public static class DirectoryService
         }
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return $"ERRO NA FUNÇÃO \"CreateDirectories()\": {ex.Message}";
         }
     }
 }

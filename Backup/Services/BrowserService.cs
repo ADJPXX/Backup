@@ -23,10 +23,9 @@ public static class BrowserService
                 }
             }
         }
-
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro: {ex.Message}");
+            Console.WriteLine($"ERRO NA FUNÇÃO \"OpenLinks()\": {ex.Message}");
         }
     }
 }

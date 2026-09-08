@@ -4,106 +4,114 @@ public static class MenuService
 {
     public static async Task MenuAsync()
     {
-        while (true)
+        try
         {
-            var option = ConsoleService.ReadInt("\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP PARA O DRIVE\n[ 2 ]FAZER BACKUP PARA A NUVEM\n[ 3 ]RESTAURAR BACKUP\n[ 4 ]CRIAR DIRETÓRIO\n[ 5 ]INSTALAR PACOTES\n[ 6 ]ATUALIZAR PACOTES\n[ 7 ]ABRIR LINKS PARA DOWNLOAD DE DRIVERS\nSua opção: ");
-
-            Console.Clear();
-
-            if (option == 0)
+            while (true)
             {
-                break;
-            }
+                var option = ConsoleService.ReadInt(
+                    "\nDIGITE O QUE QUER FAZER\n[ 0 ]SAIR\n[ 1 ]FAZER BACKUP PARA O DRIVE\n[ 2 ]FAZER BACKUP PARA A NUVEM\n[ 3 ]RESTAURAR BACKUP\n[ 4 ]CRIAR DIRETÓRIO\n[ 5 ]INSTALAR PACOTES\n[ 6 ]ATUALIZAR PACOTES\n[ 7 ]ABRIR LINKS PARA DOWNLOAD DE DRIVERS\nSua opção: ");
 
-            var driveExists = DriveService.DevDriveExists();
+                Console.Clear();
 
-            if (!driveExists)
-            {
-                continue;
-            }
-            
-            switch (option)
-            {
-                case 1:
+                if (option == 0)
                 {
-                    var result = await DriveBackupService.MakeDriveBackupAsync();
-
-                    Console.WriteLine(result);
                     break;
                 }
 
-                case 2:
-                {
-                    var result = await CloudBackupService.MakeCloudBackupAsync();
+                var driveExists = DriveService.DevDriveExists();
 
-                    Console.WriteLine(result);
-                    break;
+                if (!driveExists)
+                {
+                    continue;
                 }
 
-                case 3:
+                switch (option)
                 {
-                    var result = await RestoreBackupService.RestoreBackupAsync();
-
-                    Console.WriteLine(result);
-                    break;
-                }
-
-                case 4:
-                {
-                    var result = DirectoryService.CreateDirectories();
-
-                    Console.WriteLine(result);
-                    break;
-                }
-
-                case 5:
-                {
-                    var wingetExists = WingetService.WingetExists();
-
-                    if (wingetExists)
+                    case 1:
                     {
-                        var result = WingetService.InstallPackages();
+                        var result = await DriveBackupService.MakeDriveBackupAsync();
 
                         Console.WriteLine(result);
-                    }
-                    else
-                    {
-                        WingetService.InstallWinget();
+                        break;
                     }
 
-                    break;
-                }
-
-                case 6:
-                {
-                    var wingetExists = WingetService.WingetExists();
-
-                    if (wingetExists)
+                    case 2:
                     {
-                        var result = WingetService.UpgradePackages();
+                        var result = await CloudBackupService.MakeCloudBackupAsync();
 
                         Console.WriteLine(result);
+                        break;
                     }
-                    else
+
+                    case 3:
                     {
-                        WingetService.InstallWinget();
+                        var result = await RestoreBackupService.RestoreBackupAsync();
+
+                        Console.WriteLine(result);
+                        break;
                     }
-                    
-                    break;
-                }
 
-                case 7:
-                {
-                    BrowserService.OpenLinks();
-                    break;
-                }
+                    case 4:
+                    {
+                        var result = DirectoryService.CreateDirectories();
 
-                default:
-                {
-                    Console.WriteLine("Opção inválida.");
-                    break;
+                        Console.WriteLine(result);
+                        break;
+                    }
+
+                    case 5:
+                    {
+                        var wingetExists = WingetService.WingetExists();
+
+                        if (wingetExists)
+                        {
+                            var result = WingetService.InstallPackages();
+
+                            Console.WriteLine(result);
+                        }
+                        else
+                        {
+                            WingetService.InstallWinget();
+                        }
+
+                        break;
+                    }
+
+                    case 6:
+                    {
+                        var wingetExists = WingetService.WingetExists();
+
+                        if (wingetExists)
+                        {
+                            var result = WingetService.UpgradePackages();
+
+                            Console.WriteLine(result);
+                        }
+                        else
+                        {
+                            WingetService.InstallWinget();
+                        }
+
+                        break;
+                    }
+
+                    case 7:
+                    {
+                        BrowserService.OpenLinks();
+                        break;
+                    }
+
+                    default:
+                    {
+                        Console.WriteLine("Opção inválida.");
+                        break;
+                    }
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERRO NA FUNÇÃO \"MenuAsync()\": {ex.Message}");
         }
     }
 }
