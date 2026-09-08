@@ -12,6 +12,8 @@ public static class Program
             return;
         }
 
+        InitializerService.CheckLogFile();
+        
         InitializerService.ReadJson();
 
         SchedulerService.CheckTasks();

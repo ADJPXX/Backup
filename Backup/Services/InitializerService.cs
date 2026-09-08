@@ -12,14 +12,12 @@ public static class InitializerService
     {
         try
         {
-            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BackupConfig.json");
-
-            if (!File.Exists(jsonPath))
+            if (!File.Exists(PathsService.JsonPath))
             {
-                CreateDefaultSettings(jsonPath);
+                CreateDefaultSettings(PathsService.JsonPath);
             }
 
-            var json = File.ReadAllText(jsonPath);
+            var json = File.ReadAllText(PathsService.JsonPath);
 
             var config = JsonSerializer.Deserialize<ConfigDto>(json);
 
@@ -154,6 +152,15 @@ public static class InitializerService
     }
 
 
+    public static void CheckLogFile()
+    {
+        if (!File.Exists(PathsService.LogPath))
+        {
+            File.Create(PathsService.LogPath).Dispose();
+        }
+    }
+    
+    
     public static bool IsAdmin()
     {
         try

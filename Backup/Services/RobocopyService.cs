@@ -34,34 +34,26 @@ public static class RobocopyService
 
     private static string RobocopyInterpreter(int exitCode)
     {
-        try
+        return exitCode switch
         {
-            return exitCode switch
-            {
-                0 => "Nada para copiar",
-                1 => "Copiado",
-                2 => "Existem extras",
-                3 => "Copiado + existem extras",
-                4 => "Existem arquivos incompatíveis",
-                5 => "Copiado + incompatíveis",
-                6 => "Extras + incompatíveis",
-                7 => "Copiado + extras + incompatíveis",
-                8 => "Falha de cópia",
-                9 => "Copiado algo + houve falha",
-                10 => "Extras + falha",
-                11 => "Copiado + extras + falha",
-                12 => "Incompatíveis + falha",
-                13 => "Copiado + incompatíveis + falha",
-                14 => "Extras + incompatíveis + falha",
-                15 => "Copiado + extras + incompatíveis + falha",
-                16 => "Erro fatal",
-                _ => "Código de saída desconhecido"
-            };
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"ERRO NA FUNÇÃO \"RobocopyInterpreter()\": {ex.Message}");
-            return string.Empty;
-        }
+            0 => "Nada para copiar",
+            1 => "Copiado",
+            2 => "Existem extras",
+            3 => "Copiado + existem extras",
+            4 => "Existem arquivos incompatíveis",
+            5 => "Copiado + incompatíveis",
+            6 => "Extras + incompatíveis",
+            7 => "Copiado + extras + incompatíveis",
+            8 => "Falha de cópia",
+            9 => "Copiado algo + houve falha",
+            10 => "Extras + falha",
+            11 => "Copiado + extras + falha",
+            12 => "Incompatíveis + falha",
+            13 => "Copiado + incompatíveis + falha",
+            14 => "Extras + incompatíveis + falha",
+            15 => "Copiado + extras + incompatíveis + falha",
+            16 => "Erro fatal",
+            _ => "Código de saída desconhecido"
+        };
     }
 }

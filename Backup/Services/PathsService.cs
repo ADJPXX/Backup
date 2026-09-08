@@ -13,6 +13,12 @@ public static class PathsService
     public const string BackupDrive = @"D:\Backups\";
 
     public const string BackupCodes = @"D:\Codigos\";
+
+    private static readonly string ExeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+    
+    public static readonly string JsonPath = Path.Combine(ExeDirectory, "BackupConfig.json");
+
+    public static readonly string LogPath = Path.Combine(ExeDirectory, "backup.log");
     
     public static readonly string ExcludedFolders = string.Join(' ', Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\""));
     
