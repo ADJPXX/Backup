@@ -13,7 +13,7 @@ public static class CloudBackupService
         {
             LogService.StartExecution("CLOUD BACKUP");
             
-            if (!Directory.Exists(PathsService.CloudBackup))
+            if (!Directory.Exists(Config.Configs.CloudBackupPath))
             {
                 LogService.AddLog("A NUVEM NÃO FOI ENCONTRADA!");
                 
@@ -33,7 +33,7 @@ public static class CloudBackupService
                     continue;
                 }
                 
-                var cloudStatus = await RobocopyService.CopyAsync($"\"{directory}\" \"{PathsService.CloudBackup}\\{folderName}\" /E /COPY:DAT /R:3 /W:5");
+                var cloudStatus = await RobocopyService.CopyAsync($"\"{directory}\" \"{Config.Configs.CloudBackupPath}\\{folderName}\" /E /COPY:DAT /R:3 /W:5");
                 
                 LogService.AddLog($"{folderName} STATUS: {cloudStatus.Item1}");
                 
