@@ -332,9 +332,9 @@ public static class RestoreBackupService
     {
         try
         {
-            if (Directory.Exists(PathsService.TudoInDrive))
+            if (Directory.Exists(PathsService.TudoCut))
             {
-                var tudoStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoInDrive}\" \"{PathsService.TudoInDownloads}\" /E /MOVE /R:3 /W:5");
+                var tudoStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoCut}\" \"{PathsService.TudoInDownloads}\" /E /MOVE /R:3 /W:5");
                 
                 LogService.AddLog($"TUDO STATUS: {tudoStatus.Item1}");
                     
@@ -349,9 +349,9 @@ public static class RestoreBackupService
             }
             else
             {
-                LogService.AddLog($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoInDrive}");
+                LogService.AddLog($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoCut}");
                 
-                log.AppendLine($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoInDrive}");
+                log.AppendLine($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoCut}");
             }
         }
         catch (Exception ex)

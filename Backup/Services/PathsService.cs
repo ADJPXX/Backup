@@ -58,7 +58,9 @@ public static class PathsService
 
     public static readonly string TudoInDownloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
 
-    public static readonly string TudoInDrive = Path.Combine(BackupDriveLetter, "TUDO");
+    public static readonly string TudoCut = Path.Combine(BackupDriveLetter, "TUDO");
+
+    public static readonly string TudoCopied = Path.Combine(BackupDrive, "TUDO");
 
     public static readonly string VideosGravadosInVideos = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Vídeos gravados");
     

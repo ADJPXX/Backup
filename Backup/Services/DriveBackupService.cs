@@ -359,17 +359,30 @@ public static class DriveBackupService
         {
             if (Directory.Exists(PathsService.TudoInDownloads))
             {
-                var tudoStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoInDownloads}\" \"{PathsService.TudoInDrive}\" /E /MOVE /R:3 /W:5");
-                
-                LogService.AddLog($"TUDO STATUS: {tudoStatus.Item1}");
-                    
-                log.AppendLine($"TUDO STATUS: {tudoStatus.Item1}");
+                var tudoCopiadoStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoInDownloads}\" \"{PathsService.TudoCopied}\" /E /COPY:DAT /R:3 /W:5");
 
-                if (!string.IsNullOrEmpty(tudoStatus.Item2))
+                LogService.AddLog($"TUDO copiado STATUS: {tudoCopiadoStatus.Item1}");
+
+                log.AppendLine($"TUDO copiado STATUS: {tudoCopiadoStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(tudoCopiadoStatus.Item2))
                 {
-                    LogService.AddLog($"TUDO ERRO: {tudoStatus.Item2}");
+                    LogService.AddLog($"TUDO copiado STATUS: {tudoCopiadoStatus.Item2}");
+
+                    log.AppendLine($"TUDO copiado STATUS: {tudoCopiadoStatus.Item2}");
+                }
+
+                var tudoRecortadoStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoInDownloads}\" \"{PathsService.TudoCut}\" /E /MOVE /R:3 /W:5");
+                
+                LogService.AddLog($"TUDO recortado STATUS: {tudoRecortadoStatus.Item1}");
                     
-                    log.AppendLine($"TUDO ERRO: {tudoStatus.Item2}");
+                log.AppendLine($"TUDO recortado STATUS: {tudoRecortadoStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(tudoRecortadoStatus.Item2))
+                {
+                    LogService.AddLog($"TUDO recortado ERRO: {tudoRecortadoStatus.Item2}");
+                    
+                    log.AppendLine($"TUDO recortado ERRO: {tudoRecortadoStatus.Item2}");
                 }
             }
             else
