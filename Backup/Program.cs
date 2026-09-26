@@ -12,9 +12,10 @@ public static class Program
             return;
         }
 
-        InitializerService.CheckLogFile();
-        
+        // This function needs to be here as the first thing the code will execute since this one loads the mandatory configurations for the program to work properly.
         InitializerService.ReadJson();
+
+        InitializerService.CheckLogFile();
 
         SchedulerService.CheckTasks();
 

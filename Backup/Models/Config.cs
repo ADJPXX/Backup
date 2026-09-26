@@ -11,7 +11,6 @@ public static class Config
         Configs = configDto;
         Initialized = true;
     }
-
 }
 
 

@@ -44,14 +44,11 @@ public static class InitializerService
             {
                 Apps =
                 [
-                    "Microsoft.AppInstaller",
-                    "Microsoft.WindowsTerminal",
                     "Microsoft.DotNet.SDK.10",
-                    "Python.Python.3.14",
-                    "Oracle.JavaRuntimeEnvironment",
                     "Git.Git",
                     "Axosoft.GitKraken",
                     "AgileBits.1Password",
+                    "9N0866FS04W8",
                     "Logitech.GHUB",
                     "Google.Chrome",
                     "Parsec.Parsec",
@@ -82,18 +79,25 @@ public static class InitializerService
                         Name = "MyCalendar",
                         ExecutablePath = @"D:\SCRIPTS\MyCalendar\MyCalendar.exe",
                         Delay = 5
+                    },
+                    new TaskConfig
+                    {
+                        Name = "InstantReplayChecker",
+                        ExecutablePath = @"D:\SCRIPTS\InstantReplayChecker\InstantReplayChecker.exe",
+                        Delay = 5
                     }
                 ],
 
 
                 BackupFolders =
                 [
+                    "AC Content Manager",
                     "Assetto Corsa",
                     "Assetto Corsa Competizione",
-                    "iRacing",
                     "Automobilista 2",
-                    "RaceLabApps",
-                    "My Games"
+                    "iRacing",
+                    "My Games",
+                    "PCSX2"
                 ],
 
 
@@ -106,6 +110,7 @@ public static class InitializerService
                     "Fotos Steam",
                     "Instaladores",
                     "Jogos e emuladores",
+                    "SCRIPTS",
                     "Vídeos",
                     "Wallpapers"
                 ],
@@ -136,6 +141,7 @@ public static class InitializerService
                 [
                     "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html",
                     "https://www.nvidia.com/pt-br/drivers/",
+                    "https://psnp-plus.huskycode.dev/",
                     "https://us.ugreen.com/pages/download"
                 ]
             };

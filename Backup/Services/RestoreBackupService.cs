@@ -25,7 +25,13 @@ public static class RestoreBackupService
             
             await CsBackupAsync(log);
 
+            await LmuBackupAsync(log);
+
             await TarkovBackupAsync(log);
+
+            await AfterburnerBackupAsync(log);
+
+            await RivaTunerBackupAsync(log);
 
             await TudoBackupAsync(log);
 
@@ -295,6 +301,39 @@ public static class RestoreBackupService
     }
 
 
+    private static async Task LmuBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.LmuInD))
+            {
+                LogService.AddLog($"A PASTA \"UserData\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.LmuInD}");
+
+                log.AppendLine($"A PASTA \"UserData\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.LmuInD}");
+
+                return;
+            }
+
+            var lmuStatus = await RobocopyService.CopyAsync($"\"{PathsService.LmuInD}\" \"{PathsService.LmuInC}\" /E /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
+
+            LogService.AddLog($"LMU STATUS: {lmuStatus.Item1}");
+
+            log.AppendLine($"LMU STATUS: {lmuStatus.Item1}");
+
+            if (!string.IsNullOrEmpty(lmuStatus.Item2))
+            {
+                LogService.AddLog($"LMU ERRO: {lmuStatus.Item2}");
+
+                log.AppendLine($"LMU ERRO: {lmuStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"LmuBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
     private static async Task TarkovBackupAsync(StringBuilder log)
     {
         try
@@ -324,6 +363,98 @@ public static class RestoreBackupService
         catch (Exception ex)
         {
             log.AppendLine($"ERRO NA FUNÇÃO \"TarkovBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task AfterburnerBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.AfterburnerInD))
+            {
+                LogService.AddLog($"A PASTA \"Profiles\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.AfterburnerInD}");
+
+                log.AppendLine($"A PASTA \"Profiles\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.AfterburnerInD}");
+
+                return;
+            }
+
+            var afterburnerStatus = await RobocopyService.CopyAsync($"\"{PathsService.AfterburnerInD}\" \"{PathsService.AfterburnerInC}\" /E /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
+
+            LogService.AddLog($"Afterburner STATUS: {afterburnerStatus.Item1}");
+
+            log.AppendLine($"Afterburner STATUS: {afterburnerStatus.Item1}");
+
+            if (!string.IsNullOrEmpty(afterburnerStatus.Item2))
+            {
+                LogService.AddLog($"Afterburner ERRO: {afterburnerStatus.Item2}");
+
+                log.AppendLine($"Afterburner ERRO: {afterburnerStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"AfterburnerBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task RivaTunerBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            // PROFILES FOLDER COPY
+            if (!Directory.Exists(PathsService.RivaProfilesInD))
+            {
+                LogService.AddLog($"A PASTA \"Profiles\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.RivaProfilesInD}");
+
+                log.AppendLine($"A PASTA \"Profiles\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.RivaProfilesInD}");
+            }
+
+            else
+            {
+                var rivaProfilesStatus = await RobocopyService.CopyAsync($"\"{PathsService.RivaProfilesInD}\" \"{PathsService.RivaProfilesInC}\" /E /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
+
+                LogService.AddLog($"Riva \"Profiles\" STATUS: {rivaProfilesStatus.Item1}");
+
+                log.AppendLine($"Riva \"Profiles\" STATUS: {rivaProfilesStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(rivaProfilesStatus.Item2))
+                {
+                    LogService.AddLog($"Riva \"Profiles\" ERRO: {rivaProfilesStatus.Item2}");
+
+                    log.AppendLine($"Riva \"Profiles\" ERRO: {rivaProfilesStatus.Item2}");
+                }
+            }
+
+            // PLUGINS FOLDER COPY
+            if (!Directory.Exists(PathsService.RivaPluginsInD))
+            {
+                LogService.AddLog($"A PASTA \"Plugins\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.RivaPluginsInD}");
+
+                log.AppendLine($"A PASTA \"Plugins\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.RivaPluginsInD}");
+            }
+
+            else
+            {
+                var rivaPluginsStatus = await RobocopyService.CopyAsync($"\"{PathsService.RivaPluginsInD}\" \"{PathsService.RivaPluginsInC}\" /E /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
+
+                LogService.AddLog($"Riva \"Plugins\" STATUS: {rivaPluginsStatus.Item1}");
+
+                log.AppendLine($"Riva \"Plugins\" STATUS: {rivaPluginsStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(rivaPluginsStatus.Item2))
+                {
+                    LogService.AddLog($"Riva \"Plugins\" ERRO: {rivaPluginsStatus.Item2}");
+
+                    log.AppendLine($"Riva \"Plugins\" ERRO: {rivaPluginsStatus.Item2}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"RivaTunerBackupAsync()\": {ex.Message}");
         }
     }
 
