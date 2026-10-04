@@ -17,7 +17,12 @@ public static class Program
 
         InitializerService.CheckLogFile();
 
-        SchedulerService.CheckTasks();
+        var taskPathExists = SchedulerService.CheckTasks();
+
+        if (!taskPathExists)
+        {
+            await MenuService.MenuTasksAsync();
+        }
 
         LanguageLayoutService.DisableLanguageShortcut();
 

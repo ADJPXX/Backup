@@ -5,8 +5,10 @@ namespace Backup.Services;
 
 public static class SchedulerService
 {
-    public static void CheckTasks()
+    public static bool CheckTasks()
     {
+        var taskPathExists = true;
+
         try
         {
             List<TaskConfig> nonExistentTasks = [];
@@ -21,18 +23,32 @@ public static class SchedulerService
 
             if (nonExistentTasks.Count == 0)
             {
-                return;
+                return true;
             }
 
             foreach (var task in nonExistentTasks)
             {
-                try
+                while (true)
                 {
-                    CreateTask(task);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Não foi possivel criar a tarefa {task.Name}. Erro: {ex.Message}");
+                    taskPathExists = TaskPathExists(task);
+
+                    if (!taskPathExists)
+                    {
+                        Console.WriteLine($"O caminho da tarefa {task.Name} não existe, caminho: {task.ExecutablePath}\nTAREFA NÃO CRIADA.\n");
+
+                        break;
+                    }
+
+                    try
+                    {
+                        CreateTask(task);
+
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Não foi possivel criar a tarefa {task.Name}. Erro: {ex.Message}");
+                    }
                 }
             }
         }
@@ -40,6 +56,8 @@ public static class SchedulerService
         {
             Console.WriteLine($"ERRO NA FUNÇÃO \"CheckTasks()\": {ex.Message}");
         }
+
+        return taskPathExists;
     }
 
 
@@ -48,6 +66,12 @@ public static class SchedulerService
         using TaskService taskService = new();
 
         return taskService.GetTask(name) != null;
+    }
+
+
+    private static bool TaskPathExists(TaskConfig task)
+    {
+        return File.Exists(task.ExecutablePath);
     }
 
 

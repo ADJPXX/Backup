@@ -33,6 +33,10 @@ public static class PathsService
     
     public static readonly string Documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+    public static readonly string ScriptsFolderInC = Path.Combine(Documents, "SCRIPTS");
+
+    public static readonly string ScriptsFolderInD = Path.Combine(BackupDriveLetter, "SCRIPTS");
+
     public static readonly string CsInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", "Counter-Strike Global Offensive", "game", "csgo", "cfg");
 
     public static readonly string CsInD = Path.Combine(BackupDrive, "CS", "CFGS");

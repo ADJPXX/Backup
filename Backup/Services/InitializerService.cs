@@ -56,7 +56,9 @@ public static class InitializerService
                     "Discord.Discord",
                     "OBSProject.OBSStudio",
                     "JetBrains.Toolbox",
-                    "Google.GoogleDrive"
+                    "Google.GoogleDrive",
+                    "Guru3D.Afterburner",
+                    "Guru3D.RTSS"
                 ],
 
 
@@ -65,7 +67,7 @@ public static class InitializerService
                     new TaskConfig
                     {
                         Name = "TempCleaner",
-                        ExecutablePath = @"D:\SCRIPTS\TempCleaner.exe",
+                        ExecutablePath = @"D:\SCRIPTS\TempCleaner\TempCleaner.exe",
                         Delay = 10
                     },
                     new TaskConfig
@@ -84,6 +86,12 @@ public static class InitializerService
                     {
                         Name = "InstantReplayChecker",
                         ExecutablePath = @"D:\SCRIPTS\InstantReplayChecker\InstantReplayChecker.exe",
+                        Delay = 5
+                    },
+                    new TaskConfig
+                    {
+                        Name = "PS3DiscordRichPresence",
+                        ExecutablePath = @"D:\SCRIPTS\PS3DISCORD\PS3DiscordRichPresence.exe",
                         Delay = 5
                     }
                 ],
@@ -142,6 +150,7 @@ public static class InitializerService
                     "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html",
                     "https://www.nvidia.com/pt-br/drivers/",
                     "https://psnp-plus.huskycode.dev/",
+                    "https://www.tradingpaints.com/page/Install",
                     "https://us.ugreen.com/pages/download"
                 ]
             };

@@ -14,7 +14,9 @@ public static class RestoreBackupService
             LogService.StartExecution("RESTAURAR");
             
             await DocumentsBackupAsync(log);
-            
+
+            await ScriptsBackupAsync(log);
+
             await RepositoriesBackupAsync(log);
 
             await DaVinciBackupAsync(log);
@@ -90,8 +92,44 @@ public static class RestoreBackupService
             log.AppendLine($"ERRO NA FUNÇÃO \"DocumentsBackupAsync()\": {ex.Message}");
         }
     }
-    
-    
+
+
+    public static async Task ScriptsBackupAsync(StringBuilder? log=null)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.ScriptsFolderInD))
+            {
+                var scriptsFolderStatus = await RobocopyService.CopyAsync($"\"{PathsService.ScriptsFolderInD}\" \"{PathsService.ScriptsFolderInC}\" /E /COPY:DAT /R:3 /W:5");
+
+                LogService.AddLog($"SCRIPTS STATUS: {scriptsFolderStatus.Item1}");
+
+                log?.AppendLine($"SCRIPTS STATUS: {scriptsFolderStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(scriptsFolderStatus.Item2))
+                {
+                    LogService.AddLog($"SCRIPTS ERRO: {scriptsFolderStatus.Item2}");
+
+                    log?.AppendLine($"SCRIPTS ERRO: {scriptsFolderStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"SCRIPTS\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.ScriptsFolderInD}\"");
+
+                log?.AppendLine($"A PASTA \"SCRIPTS\" NÃO FOI ENCONTRADA NO CAMINHO: \"{PathsService.ScriptsFolderInD}\"");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            log?.AppendLine($"ERRO NA FUNÇÃO \"ScriptsBackupAsync()\": {ex.Message}");
+        }
+
+
+    }
+
+
     private static async Task RepositoriesBackupAsync(StringBuilder log)
     {
         try
