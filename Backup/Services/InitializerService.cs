@@ -36,6 +36,15 @@ public static class InitializerService
     }
 
 
+    public static void CheckLogFile()
+    {
+        if (!File.Exists(PathsService.LogPath))
+        {
+            File.Create(PathsService.LogPath).Dispose();
+        }
+    }
+    
+
     private static void CreateDefaultSettings(string jsonPath)
     {
         try
@@ -56,7 +65,9 @@ public static class InitializerService
                     "Discord.Discord",
                     "OBSProject.OBSStudio",
                     "JetBrains.Toolbox",
-                    "Google.GoogleDrive"
+                    "Google.GoogleDrive",
+                    "Guru3D.Afterburner",
+                    "Guru3D.RTSS"
                 ],
 
 
@@ -65,25 +76,37 @@ public static class InitializerService
                     new TaskConfig
                     {
                         Name = "TempCleaner",
-                        ExecutablePath = @"D:\SCRIPTS\TempCleaner.exe",
+                        ExecutablePath = @"TempCleaner\TempCleaner.exe",
                         Delay = 10
                     },
                     new TaskConfig
                     {
                         Name = "CloudBackup",
-                        ExecutablePath = @"D:\SCRIPTS\CloudBackup\CloudBackup.exe",
+                        ExecutablePath = @"CloudBackup\CloudBackup.exe",
                         Delay = 30
                     },
                     new TaskConfig
                     {
                         Name = "MyCalendar",
-                        ExecutablePath = @"D:\SCRIPTS\MyCalendar\MyCalendar.exe",
+                        ExecutablePath = @"MyCalendar\MyCalendar.exe",
                         Delay = 5
                     },
                     new TaskConfig
                     {
                         Name = "InstantReplayChecker",
-                        ExecutablePath = @"D:\SCRIPTS\InstantReplayChecker\InstantReplayChecker.exe",
+                        ExecutablePath = @"InstantReplayChecker\InstantReplayChecker.exe",
+                        Delay = 5
+                    },
+                    new TaskConfig
+                    {
+                        Name = "PS3DiscordRichPresence",
+                        ExecutablePath = @"PS3DISCORD\PS3DiscordRichPresence.exe",
+                        Delay = 5
+                    },
+                    new TaskConfig
+                    {
+                        Name = "iRacingWheelSync",
+                        ExecutablePath = @"iRacingWheelSync\iRacingWheelSync.exe",
                         Delay = 5
                     }
                 ],
@@ -114,10 +137,10 @@ public static class InitializerService
                     "Vídeos",
                     "Wallpapers"
                 ],
-                
-                
+
+
                 CloudBackupPath = @"G:\Meu Drive\BackupCloud\",
-                
+
 
                 ExcludedFolders =
                 [
@@ -142,6 +165,7 @@ public static class InitializerService
                     "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html",
                     "https://www.nvidia.com/pt-br/drivers/",
                     "https://psnp-plus.huskycode.dev/",
+                    "https://www.tradingpaints.com/page/Install",
                     "https://us.ugreen.com/pages/download"
                 ]
             };
@@ -161,15 +185,6 @@ public static class InitializerService
     }
 
 
-    public static void CheckLogFile()
-    {
-        if (!File.Exists(PathsService.LogPath))
-        {
-            File.Create(PathsService.LogPath).Dispose();
-        }
-    }
-    
-    
     public static bool IsAdmin()
     {
         try

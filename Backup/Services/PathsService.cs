@@ -16,22 +16,23 @@ public static class PathsService
     
     public static readonly string JsonPath = Path.Combine(ExeDirectory, "BackupConfig.json");
 
-    public static readonly string LogPath = Path.Combine(ExeDirectory, "backup.log");
+    public static readonly string LogPath = Path.Combine(ExeDirectory, "BackupLog.log");
 
     public static string ExcludedFolders
     {
         get
         {
-            var result = string.Join(
-                ' ',
-                Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\"")
-            );
+            var result = string.Join(' ', Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\""));
 
             return result;
         }
     }
     
     public static readonly string Documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+    public static readonly string ScriptsFolderInC = Path.Combine(Documents, "SCRIPTS");
+
+    public static readonly string ScriptsFolderInD = Path.Combine(BackupDriveLetter, "SCRIPTS");
 
     public static readonly string CsInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", "Counter-Strike Global Offensive", "game", "csgo", "cfg");
 

@@ -114,4 +114,29 @@ public static class MenuService
             Console.WriteLine($"ERRO NA FUNÇÃO \"MenuAsync()\": {ex.Message}");
         }
     }
+
+
+
+    public static async Task MenuTasksAsync()
+    {
+        while (true)
+        {
+            Console.WriteLine("APERTE ENTER PARA RESTAURAR A PASTA \"SCRIPTS\" DO DISCO DE BACKUP E FAZER UMA NOVA TENTATIVA DE CRIAR A TAREFA.");
+
+            Console.ReadKey();
+
+            await RestoreBackupService.ScriptsBackupAsync();
+
+            Console.Clear();
+
+            var taskPathExists = SchedulerService.CheckTasks();
+
+            if (!taskPathExists)
+            {
+                continue;
+            }
+
+            break;
+        }
+    }
 }
