@@ -71,7 +71,7 @@ public static class SchedulerService
 
     private static bool TaskPathExists(TaskConfig task)
     {
-        return File.Exists(task.ExecutablePath);
+        return File.Exists(Path.Combine(PathsService.ScriptsFolderInC, task.ExecutablePath));
     }
 
 
@@ -116,7 +116,7 @@ public static class SchedulerService
             td.Triggers.Add(trigger);
 
             // Executável
-            td.Actions.Add(new ExecAction(task.ExecutablePath));
+            td.Actions.Add(new ExecAction(Path.Combine(PathsService.ScriptsFolderInC, task.ExecutablePath)));
 
             // Registrar tarefa
             taskService.RootFolder.RegisterTaskDefinition(task.Name, td, TaskCreation.CreateOrUpdate, null, null,

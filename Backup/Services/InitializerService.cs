@@ -36,6 +36,15 @@ public static class InitializerService
     }
 
 
+    public static void CheckLogFile()
+    {
+        if (!File.Exists(PathsService.LogPath))
+        {
+            File.Create(PathsService.LogPath).Dispose();
+        }
+    }
+    
+
     private static void CreateDefaultSettings(string jsonPath)
     {
         try
@@ -67,31 +76,37 @@ public static class InitializerService
                     new TaskConfig
                     {
                         Name = "TempCleaner",
-                        ExecutablePath = @"D:\SCRIPTS\TempCleaner\TempCleaner.exe",
+                        ExecutablePath = @"TempCleaner\TempCleaner.exe",
                         Delay = 10
                     },
                     new TaskConfig
                     {
                         Name = "CloudBackup",
-                        ExecutablePath = @"D:\SCRIPTS\CloudBackup\CloudBackup.exe",
+                        ExecutablePath = @"CloudBackup\CloudBackup.exe",
                         Delay = 30
                     },
                     new TaskConfig
                     {
                         Name = "MyCalendar",
-                        ExecutablePath = @"D:\SCRIPTS\MyCalendar\MyCalendar.exe",
+                        ExecutablePath = @"MyCalendar\MyCalendar.exe",
                         Delay = 5
                     },
                     new TaskConfig
                     {
                         Name = "InstantReplayChecker",
-                        ExecutablePath = @"D:\SCRIPTS\InstantReplayChecker\InstantReplayChecker.exe",
+                        ExecutablePath = @"InstantReplayChecker\InstantReplayChecker.exe",
                         Delay = 5
                     },
                     new TaskConfig
                     {
                         Name = "PS3DiscordRichPresence",
-                        ExecutablePath = @"D:\SCRIPTS\PS3DISCORD\PS3DiscordRichPresence.exe",
+                        ExecutablePath = @"PS3DISCORD\PS3DiscordRichPresence.exe",
+                        Delay = 5
+                    },
+                    new TaskConfig
+                    {
+                        Name = "iRacingWheelSync",
+                        ExecutablePath = @"iRacingWheelSync\iRacingWheelSync.exe",
                         Delay = 5
                     }
                 ],
@@ -122,10 +137,10 @@ public static class InitializerService
                     "Vídeos",
                     "Wallpapers"
                 ],
-                
-                
+
+
                 CloudBackupPath = @"G:\Meu Drive\BackupCloud\",
-                
+
 
                 ExcludedFolders =
                 [
@@ -170,15 +185,6 @@ public static class InitializerService
     }
 
 
-    public static void CheckLogFile()
-    {
-        if (!File.Exists(PathsService.LogPath))
-        {
-            File.Create(PathsService.LogPath).Dispose();
-        }
-    }
-    
-    
     public static bool IsAdmin()
     {
         try

@@ -125,8 +125,6 @@ public static class RestoreBackupService
         {
             log?.AppendLine($"ERRO NA FUNÇÃO \"ScriptsBackupAsync()\": {ex.Message}");
         }
-
-
     }
 
 

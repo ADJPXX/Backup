@@ -16,16 +16,13 @@ public static class PathsService
     
     public static readonly string JsonPath = Path.Combine(ExeDirectory, "BackupConfig.json");
 
-    public static readonly string LogPath = Path.Combine(ExeDirectory, "backup.log");
+    public static readonly string LogPath = Path.Combine(ExeDirectory, "BackupLog.log");
 
     public static string ExcludedFolders
     {
         get
         {
-            var result = string.Join(
-                ' ',
-                Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\"")
-            );
+            var result = string.Join(' ', Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\""));
 
             return result;
         }
