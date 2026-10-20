@@ -53,26 +53,31 @@ public static class InitializerService
             {
                 Apps =
                 [
-                    "Microsoft.DotNet.SDK.10",
-                    "Git.Git",
-                    "Axosoft.GitKraken",
                     "AgileBits.1Password",
+                    "Valve.Steam",
+                    "Google.GoogleDrive",
                     "9N0866FS04W8",
                     "Logitech.GHUB",
                     "Google.Chrome",
                     "Parsec.Parsec",
-                    "Valve.Steam",
                     "Discord.Discord",
                     "OBSProject.OBSStudio",
-                    "JetBrains.Toolbox",
-                    "Google.GoogleDrive",
                     "Guru3D.Afterburner",
-                    "Guru3D.RTSS"
+                    "Guru3D.RTSS",
+                    "Microsoft.DotNet.SDK.10",
+                    "Git.Git",
+                    "Axosoft.GitKraken",
+                    "JetBrains.Toolbox"
                 ],
-
 
                 Tasks =
                 [
+                    new TaskConfig
+                    {
+                        Name = "AC_Controller",
+                        ExecutablePath = @"AC_Controller\AC_Controller.exe",
+                        Delay = 30
+                    },
                     new TaskConfig
                     {
                         Name = "TempCleaner",
@@ -111,7 +116,6 @@ public static class InitializerService
                     }
                 ],
 
-
                 BackupFolders =
                 [
                     "AC Content Manager",
@@ -120,9 +124,9 @@ public static class InitializerService
                     "Automobilista 2",
                     "iRacing",
                     "My Games",
-                    "PCSX2"
+                    "PCSX2",
+                    "RaceLabApps"
                 ],
-
 
                 CloudBackupFolders =
                 [
@@ -138,9 +142,7 @@ public static class InitializerService
                     "Wallpapers"
                 ],
 
-
                 CloudBackupPath = @"G:\Meu Drive\BackupCloud\",
-
 
                 ExcludedFolders =
                 [
@@ -159,13 +161,13 @@ public static class InitializerService
                     "Python"
                 ],
 
-
                 Links =
                 [
                     "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html",
                     "https://www.nvidia.com/pt-br/drivers/",
                     "https://psnp-plus.huskycode.dev/",
                     "https://www.tradingpaints.com/page/Install",
+                    "https://racelab.app/",
                     "https://us.ugreen.com/pages/download"
                 ]
             };
